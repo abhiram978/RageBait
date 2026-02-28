@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Greed Trial</title>
+    <title>BitchBait - The Greed Trial</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Creepster&display=swap');
 
@@ -4194,7 +4194,7 @@
         }
 
         function copyShare() {
-            const t = `🔥 The Greed Trial\n💰 Peak: $${fmt(G.peakMoney)}\n💥 Crashes: ${G.crashes}\n📊 Greed: ${Math.min(10, Math.round(G.greedRating))}/10\n🎯 Level: ${G.level}/20\n⏱ ${Math.floor((Date.now() - G.startTime) / 60000)}m\n\nCan you beat it?`;
+            const t = `🔥 BITCHBAIT - The Greed Trial\n💰 Peak: $${fmt(G.peakMoney)}\n💥 Crashes: ${G.crashes}\n📊 Greed: ${Math.min(10, Math.round(G.greedRating))}/10\n🎯 Level: ${G.level}/20\n⏱ ${Math.floor((Date.now() - G.startTime) / 60000)}m\n\nCan you beat it?`;
             navigator.clipboard?.writeText(t).then(() => setMsg("📋 Copied!", 'good')).catch(() => setMsg("Copy failed", 'info'));
         }
 
@@ -4222,6 +4222,36 @@
 
         window.addEventListener('beforeunload', () => { clearAll(); saveHS(); });
     </script>
+    <!-- 🔥 DEVELOPER CREDIT — ADD THIS RIGHT BEFORE THE CLOSING </body> TAG (after the </script>) -->
+    <!-- 100% non-intrusive: fixed bottom, tiny, transparent, zero layout impact, doesn't touch gameplay or any cards/buttons -->
+    <div id="dev-credit" style="
+        position: fixed;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(15,15,15,0.92);
+        color: #777;
+        font-size: 0.64em;
+        font-weight: 500;
+        padding: 5px 14px 5px 7px;
+        border-radius: 9999px;
+        border: 1px solid #222;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+        user-select: none;
+        pointer-events: none;
+        white-space: nowrap;
+        letter-spacing: 0.3px;
+    ">
+        <img src="https://i.ibb.co/HDzWmx9K/image.jpg"
+            style="width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; box-shadow: 0 0 0 3px rgba(0,255,136,0.15);"
+            alt="Abhiram">
+        <span>Developed by <span style="color: var(--accent); font-weight: 700;">Abhiram Ch</span></span>
+    </div>
 </body>
 
 </html>
