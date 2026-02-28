@@ -1,0 +1,4227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Greed Trial</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Creepster&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-bg2: #0d0d0d;
+            --text: #e0e0e0;
+            --accent: #00ff88;
+            --accent-dim: #00aa55;
+            --danger: #ff2244;
+            --danger-dim: #aa1133;
+            --warning: #ffaa00;
+            --purple: #aa44ff;
+            --gold: #ffd700;
+            --border: #1a1a1a;
+            --border2: #252525;
+            --muted: #555;
+            --faint: #333;
+        }
+
+        html,
+        body {
+            overscroll-behavior: none;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            transition: background 0.3s, filter 0.1s;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.theme-red {
+            --bg: #1a0000;
+            --accent: #ff4444;
+            --card-bg: #1a0505;
+            --border: #2a0505;
+        }
+
+        body.theme-blue {
+            --bg: #000818;
+            --accent: #4488ff;
+            --card-bg: #050818;
+            --border: #0a1028;
+        }
+
+        body.theme-green {
+            --bg: #001a00;
+            --accent: #44ff44;
+            --card-bg: #051a05;
+            --border: #0a280a;
+        }
+
+        body.theme-purple {
+            --bg: #0a0018;
+            --accent: #bb66ff;
+            --card-bg: #0a0518;
+            --border: #150a28;
+        }
+
+        body.flash-white {
+            background: #fff !important;
+            filter: brightness(3);
+        }
+
+        body.flash-red {
+            background: #330000 !important;
+        }
+
+        body.flash-invert {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        body.shake {
+            animation: screenShake 0.4s ease-in-out;
+        }
+
+        @keyframes screenShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            15% {
+                transform: translateX(-6px) rotate(-0.5deg);
+            }
+
+            30% {
+                transform: translateX(6px) rotate(0.5deg);
+            }
+
+            45% {
+                transform: translateX(-4px);
+            }
+
+            60% {
+                transform: translateX(4px);
+            }
+
+            75% {
+                transform: translateX(-2px);
+            }
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            min-height: 100dvh;
+        }
+
+        h1.title {
+            font-family: 'Creepster', cursive;
+            font-size: clamp(1.8em, 6vw, 2.4em);
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent), 0 0 60px color-mix(in srgb, var(--accent) 30%, transparent);
+            text-align: center;
+            letter-spacing: 2px;
+            margin-top: 12px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 0.75em;
+            color: var(--muted);
+            text-align: center;
+            font-style: italic;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(4px);
+        }
+
+        .card.glow-green {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 15%, transparent);
+        }
+
+        .card.glow-red {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--danger) 15%, transparent);
+        }
+
+        .card.glow-gold {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--gold) 15%, transparent);
+        }
+
+        .card.glow-purple {
+            border-color: var(--purple);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--purple) 15%, transparent);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .stat-box {
+            background: var(--card-bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            font-size: 0.55em;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box .value {
+            font-size: clamp(0.85em, 3vw, 1.05em);
+            font-weight: 800;
+            color: var(--accent);
+            margin-top: 3px;
+        }
+
+        .money-display {
+            font-size: clamp(2em, 8vw, 3em);
+            font-weight: 800;
+            color: var(--accent);
+            text-shadow: 0 0 15px color-mix(in srgb, var(--accent) 40%, transparent);
+            margin: 8px 0;
+            transition: all 0.2s;
+            line-height: 1.2;
+        }
+
+        .money-display.crash-anim {
+            color: var(--danger) !important;
+            text-shadow: 0 0 30px var(--danger) !important;
+            animation: crashPulse 0.4s ease-in-out 3;
+        }
+
+        @keyframes crashPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+        }
+
+        .money-display.win-anim {
+            color: var(--gold) !important;
+            text-shadow: 0 0 30px var(--gold) !important;
+            animation: winPulse 0.5s ease-in-out 3;
+        }
+
+        @keyframes winPulse {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0);
+            }
+
+            25% {
+                transform: scale(1.08) rotate(-1deg);
+            }
+
+            75% {
+                transform: scale(1.08) rotate(1deg);
+            }
+        }
+
+        .progress-section {
+            width: 100%;
+            margin: 6px 0;
+        }
+
+        .target-bar {
+            width: 100%;
+            height: 14px;
+            background: #141414;
+            border-radius: 7px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .target-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 7px;
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            min-width: 0%;
+            position: relative;
+        }
+
+        .target-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            border-radius: 0 7px 7px 0;
+        }
+
+        .target-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6em;
+            color: var(--faint);
+            margin-top: 4px;
+        }
+
+        .target-labels .current {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .doubles-hint {
+            font-size: 0.65em;
+            color: var(--faint);
+            margin-top: 2px;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.65em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .level-badge.phase1 {
+            background: #00220e;
+            color: #00ff88;
+            border: 1px solid #00ff4433;
+        }
+
+        .level-badge.phase2 {
+            background: #221400;
+            color: #ffaa00;
+            border: 1px solid #ffaa0033;
+        }
+
+        .level-badge.phase3 {
+            background: #220005;
+            color: #ff4466;
+            border: 1px solid #ff224433;
+        }
+
+        .level-badge.phase4 {
+            background: #110022;
+            color: #bb66ff;
+            border: 1px solid #aa44ff33;
+        }
+
+        .level-badge.phase-special {
+            background: #1a1a00;
+            color: #ffd700;
+            border: 1px solid #ffd70033;
+        }
+
+        .level-desc {
+            font-size: 0.78em;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 2px;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.12s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: color-mix(in srgb, var(--accent) 15%, transparent);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 20%, transparent);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            background: color-mix(in srgb, var(--accent) 25%, transparent);
+        }
+
+        .btn-main {
+            border-color: var(--gold);
+            color: var(--gold);
+            font-size: clamp(1em, 4vw, 1.2em);
+            padding: 16px 40px;
+            min-width: 180px;
+            background: color-mix(in srgb, var(--gold) 5%, transparent);
+        }
+
+        .btn-main:hover {
+            background: color-mix(in srgb, var(--gold) 20%, transparent);
+            box-shadow: 0 0 25px color-mix(in srgb, var(--gold) 25%, transparent);
+        }
+
+        .btn-main:active {
+            background: color-mix(in srgb, var(--gold) 35%, transparent);
+        }
+
+        .btn-cashout {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 5%, transparent);
+        }
+
+        .btn-danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: color-mix(in srgb, var(--danger) 5%, transparent);
+        }
+
+        .btn-danger:hover {
+            background: color-mix(in srgb, var(--danger) 20%, transparent);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--danger) 20%, transparent);
+        }
+
+        .btn-purple {
+            border-color: var(--purple);
+            color: var(--purple);
+            background: color-mix(in srgb, var(--purple) 5%, transparent);
+        }
+
+        .btn-purple:hover {
+            background: color-mix(in srgb, var(--purple) 20%, transparent);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--purple) 20%, transparent);
+        }
+
+        .btn-sm {
+            padding: 10px 18px;
+            font-size: 0.75em;
+            min-height: 40px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .msg-box {
+            background: var(--card-bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+            line-height: 1.5;
+            color: #888;
+            transition: all 0.25s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .msg-box.msg-danger {
+            border-color: var(--danger-dim);
+            color: var(--danger);
+            background: #1a050a;
+        }
+
+        .msg-box.msg-warn {
+            border-color: #aa770033;
+            color: var(--warning);
+            background: #1a1200;
+        }
+
+        .msg-box.msg-good {
+            border-color: var(--accent-dim);
+            color: var(--accent);
+            background: #001a0a;
+        }
+
+        .msg-box.msg-info {
+            border-color: var(--border2);
+            color: #777;
+        }
+
+        .crash-chance {
+            font-size: 0.72em;
+            color: var(--muted);
+            margin: 4px 0;
+        }
+
+        .crash-chance span {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .streak-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.72em;
+            font-weight: 700;
+            margin: 4px 0;
+        }
+
+        .streak-pill.hot {
+            background: #2a1800;
+            color: var(--warning);
+            border: 1px solid #aa660033;
+        }
+
+        .streak-pill.fire {
+            background: #2a0800;
+            color: #ff6644;
+            border: 1px solid #ff440033;
+            animation: firePulse 1s ease infinite alternate;
+        }
+
+        @keyframes firePulse {
+            from {
+                box-shadow: 0 0 4px #ff440022;
+            }
+
+            to {
+                box-shadow: 0 0 12px #ff440044;
+            }
+        }
+
+        .near-miss {
+            font-size: 0.72em;
+            color: var(--warning);
+            font-weight: 700;
+            animation: nmFlash 0.4s ease;
+        }
+
+        @keyframes nmFlash {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .quick-tip {
+            background: #0a1a0d;
+            border: 1px solid #00ff4422;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.7em;
+            color: var(--accent);
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .reverse-hint {
+            padding: 8px 14px;
+            background: #1a0005;
+            border: 1px solid #ff224433;
+            border-radius: 10px;
+            font-size: 0.7em;
+            color: var(--danger);
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+
+        .debt-indicator {
+            color: var(--danger);
+            font-size: 0.78em;
+            font-weight: 700;
+            padding: 4px 0;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 5px;
+            background: #141414;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), #ff6644);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            width: 100%;
+        }
+
+        .greed-section {
+            width: 100%;
+            padding: 0 4px;
+        }
+
+        .greed-bar {
+            width: 100%;
+            height: 6px;
+            background: #141414;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .greed-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--warning), var(--danger));
+            transition: width 0.4s;
+        }
+
+        .greed-label {
+            font-size: 0.55em;
+            color: var(--faint);
+            margin-top: 3px;
+        }
+
+        .tut-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .tut-card {
+            background: #111;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 28px 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: popIn 0.25s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .tut-card h2 {
+            font-family: 'Creepster', cursive;
+            color: var(--accent);
+            font-size: clamp(1.3em, 5vw, 1.6em);
+            margin-bottom: 16px;
+        }
+
+        .tut-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            text-align: left;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .tut-step:last-child {
+            border-bottom: none;
+        }
+
+        .tut-step .t-icon {
+            font-size: 1.4em;
+            min-width: 32px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .tut-step .t-text {
+            font-size: 0.78em;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .tut-step .t-text strong {
+            color: var(--accent);
+        }
+
+        .tut-step .t-text .hl-gold {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .tut-step .t-text .hl-red {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .tut-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin: 14px 0;
+        }
+
+        .tut-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--faint);
+            transition: all 0.3s;
+        }
+
+        .tut-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            width: 18px;
+            border-radius: 4px;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .popup {
+            background: var(--card-bg);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 28px 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: popIn 0.25s ease;
+        }
+
+        .popup h2 {
+            font-family: 'Creepster', cursive;
+            font-size: 1.5em;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .popup p {
+            color: #888;
+            margin: 6px 0;
+            font-size: 0.8em;
+            line-height: 1.5;
+        }
+
+        .fake-popup {
+            position: fixed;
+            z-index: 999;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 14px;
+            padding: 18px;
+            max-width: 300px;
+            width: 85%;
+            text-align: center;
+            animation: popIn 0.2s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .fake-popup h3 {
+            color: var(--danger);
+            font-size: 0.9em;
+            margin-bottom: 6px;
+        }
+
+        .fake-popup p {
+            color: #777;
+            font-size: 0.7em;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .code-display {
+            font-size: clamp(1.8em, 7vw, 2.4em);
+            font-weight: 800;
+            color: var(--warning);
+            letter-spacing: 8px;
+            margin: 14px 0;
+            text-shadow: 0 0 12px color-mix(in srgb, var(--warning) 40%, transparent);
+        }
+
+        .code-input,
+        .auth-input {
+            background: #0d0d0d;
+            border: 2px solid var(--border2);
+            border-radius: 10px;
+            padding: 12px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1em;
+            text-align: center;
+            width: 100%;
+            max-width: 280px;
+            outline: none;
+            transition: border-color 0.3s;
+            margin: 4px auto;
+            display: block;
+        }
+
+        .code-input {
+            width: 140px;
+            letter-spacing: 6px;
+        }
+
+        .auth-input:focus,
+        .code-input:focus {
+            border-color: var(--accent);
+        }
+
+        .flash-target {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 800;
+            margin: 14px auto;
+            background: #1a1a1a;
+            color: #333;
+            border: 2px solid #252525;
+            cursor: pointer;
+            transition: all 0.05s;
+            touch-action: manipulation;
+        }
+
+        .flash-target.gold {
+            background: var(--gold) !important;
+            color: #000 !important;
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 25px color-mix(in srgb, var(--gold) 40%, transparent);
+        }
+
+        .flash-target.red {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .flash-target.green {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .wait-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #252525;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 14px auto;
+            font-size: 1.8em;
+            font-weight: 800;
+            color: var(--muted);
+            transition: all 0.3s;
+        }
+
+        .wait-circle.ready {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 30%, transparent);
+        }
+
+        .verification-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #1a1a1a;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            margin: 14px auto;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ach-toast {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            left: 16px;
+            max-width: 320px;
+            margin-left: auto;
+            background: #1a1a0a;
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 2000;
+            animation: slideUp 0.3s ease, slideDown 0.3s ease 2.7s forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(80px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(80px);
+                opacity: 0;
+            }
+        }
+
+        .ach-toast .at-title {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.75em;
+        }
+
+        .ach-toast .at-desc {
+            color: #aaa;
+            font-size: 0.65em;
+            margin-top: 3px;
+        }
+
+        .lb-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .lb-table th,
+        .lb-table td {
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.72em;
+            border-bottom: 1px solid #141414;
+        }
+
+        .lb-table th {
+            color: var(--muted);
+            text-transform: uppercase;
+            font-size: 0.58em;
+            letter-spacing: 0.5px;
+        }
+
+        .lb-table td {
+            color: #777;
+        }
+
+        .lb-table tr:nth-child(1) td {
+            color: var(--gold);
+        }
+
+        .lb-table tr:nth-child(2) td {
+            color: #c0c0c0;
+        }
+
+        .lb-table tr:nth-child(3) td {
+            color: #cd7f32;
+        }
+
+        .share-card {
+            background: linear-gradient(135deg, #0a0a0a, #111);
+            border: 2px solid var(--accent);
+            border-radius: 18px;
+            padding: 22px 18px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .share-card h3 {
+            color: var(--accent);
+            font-family: 'Creepster', cursive;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .share-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.75em;
+            border-bottom: 1px solid #141414;
+        }
+
+        .share-row .sr-label {
+            color: var(--muted);
+        }
+
+        .share-row .sr-val {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .mult-section {
+            margin: 8px 0;
+        }
+
+        .mult-section .mult-label {
+            font-size: 0.65em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .mult-btn {
+            padding: 8px 16px;
+            font-size: 0.8em;
+            min-width: 60px;
+            min-height: 38px;
+        }
+
+        .mult-btn.selected {
+            background: color-mix(in srgb, var(--gold) 20%, transparent);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .question-input {
+            background: #0d0d0d;
+            border: 2px solid var(--border2);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1em;
+            text-align: center;
+            width: 100%;
+            max-width: 200px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .question-input:focus {
+            border-color: var(--accent);
+        }
+
+        .float-num {
+            position: fixed;
+            z-index: 3000;
+            font-weight: 800;
+            font-size: clamp(1em, 4vw, 1.4em);
+            pointer-events: none;
+            animation: floatUp 1s ease forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.8);
+            }
+        }
+
+        .milestone-flash {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Creepster', cursive;
+            font-size: clamp(2em, 8vw, 3em);
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold), 0 0 60px color-mix(in srgb, var(--gold) 30%, transparent);
+            z-index: 3000;
+            pointer-events: none;
+            animation: msAnim 1.2s ease forwards;
+        }
+
+        @keyframes msAnim {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.15);
+            }
+
+            75% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -55%) scale(0.9);
+            }
+        }
+
+        .pattern-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .pattern-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 800;
+            border: 1px solid var(--border2);
+            background: #141414;
+            color: var(--muted);
+        }
+
+        .pattern-dot.win {
+            background: #0a2a0a;
+            color: var(--accent);
+            border-color: var(--accent-dim);
+        }
+
+        .pattern-dot.lose {
+            background: #2a0a0a;
+            color: var(--danger);
+            border-color: var(--danger-dim);
+        }
+
+        .pattern-dot.next {
+            background: #1a1a00;
+            color: var(--gold);
+            border-color: var(--gold);
+            animation: nextPulse 1s ease infinite alternate;
+        }
+
+        @keyframes nextPulse {
+            from {
+                box-shadow: 0 0 2px var(--gold);
+            }
+
+            to {
+                box-shadow: 0 0 8px var(--gold);
+            }
+        }
+
+        /* Emoji picker */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .emoji-opt {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--card-bg2);
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
+
+        .emoji-opt:hover {
+            border-color: var(--accent);
+            background: #0a1a0d;
+        }
+
+        .emoji-opt.selected {
+            border-color: var(--gold);
+            background: #1a1a0a;
+            box-shadow: 0 0 10px color-mix(in srgb, var(--gold) 25%, transparent);
+            transform: scale(1.1);
+        }
+
+        /* Graph */
+        .graph-container {
+            width: 100%;
+            height: 200px;
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Account timer */
+        .account-timer {
+            font-size: clamp(2em, 8vw, 3em);
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            margin: 10px 0;
+            transition: color 0.3s;
+        }
+
+        .account-timer.urgent {
+            color: var(--danger);
+            animation: timerPulse 0.5s ease infinite alternate;
+        }
+
+        .account-timer.ok {
+            color: var(--accent);
+        }
+
+        .account-timer.warn {
+            color: var(--warning);
+        }
+
+        @keyframes timerPulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Personal Q styling */
+        .personal-q {
+            font-size: 1.1em;
+            color: var(--purple);
+            font-weight: 700;
+            margin: 12px 0;
+            line-height: 1.4;
+        }
+
+        .personal-result {
+            font-size: 0.85em;
+            line-height: 1.6;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .personal-result.good {
+            background: #0a1a0d;
+            border: 1px solid var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .personal-result.bad {
+            background: #1a050a;
+            border: 1px solid var(--danger-dim);
+            color: var(--danger);
+        }
+
+        .personal-result.neutral {
+            background: #1a1200;
+            border: 1px solid #aa770033;
+            color: var(--warning);
+        }
+
+        /* GK question answer buttons */
+        .gk-answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+            width: 100%;
+        }
+
+        .gk-ans-btn {
+            padding: 12px 10px;
+            border: 2px solid var(--border2);
+            background: var(--card-bg2);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            line-height: 1.3;
+            touch-action: manipulation;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gk-ans-btn:hover {
+            border-color: var(--accent);
+            background: #0a1a0d;
+        }
+
+        .gk-ans-btn:active {
+            transform: scale(0.96);
+        }
+
+        .gk-ans-btn.correct {
+            border-color: var(--accent);
+            background: #0a2a0a;
+            color: var(--accent);
+        }
+
+        .gk-ans-btn.wrong {
+            border-color: var(--danger);
+            background: #2a0a0a;
+            color: var(--danger);
+        }
+
+        .gk-ans-btn.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* GK timer */
+        .gk-timer {
+            font-size: 1.2em;
+            font-weight: 800;
+            margin: 6px 0;
+        }
+
+        .gk-timer.urgent {
+            color: var(--danger);
+        }
+
+        .gk-timer.ok {
+            color: var(--accent);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+            border-radius: 2px;
+        }
+
+        body.cursor-wait {
+            cursor: wait !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .faint {
+            color: var(--faint);
+            font-size: 0.6em;
+            text-align: center;
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 10px 8px;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 16px 14px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .btn-main {
+                padding: 14px 28px;
+                min-width: 150px;
+            }
+
+            .tut-card {
+                padding: 22px 14px;
+            }
+
+            .emoji-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .gk-answers {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app"></div>
+
+    <script>
+        // ============ THE GREED TRIAL — v5 ============
+
+        const API = '';
+
+        const G = {
+            money: 0, level: 1, crashes: 0, totalClicks: 0, cashouts: 0,
+            peakMoney: 0, streak: 0, maxStreak: 0, debt: 0, hasDebt: false,
+            greedRating: 0, startTime: Date.now(), currentMult: 2,
+            achievements: {}, rageEvents: 0, roundClicks: 0, totalRounds: 0,
+            resistCount: 0,
+            lastInsultCat: '', themeTimer: null, flashTimer: null,
+            timerInt: null, waitInt: null, flashInt: null, gkTimerInt: null,
+            inputDelay: false, specialState: null, memCode: '',
+            reverseActive: false, screen: 'welcome', lastMsg: '',
+            nearMiss: false, milestonesHit: {}, highScore: 0,
+            firstFeats: {}, gameActive: false,
+            pattern: [], patternPos: 0, patternSeq: [],
+            questionAnswered: false,
+            kicked: false,
+            // Auth
+            session: null, username: null, userEmoji: '😎',
+            loggedIn: false, authDoneInGame: false,
+            // GK questions cache
+            gkQuestions: { easy: [], medium: [], hard: [] },
+            gkLevel: 0,
+            gkTimerEnabled: false,
+            // Graph prediction
+            graphData: [],
+            // Personal questions tracking
+            personalAsked: {},
+            // Special level sequence
+            specialLevels: [],
+            specialLevelIdx: 0,
+            // Double/nothing state after correct GK
+            doubleOrNothingActive: false,
+            doubleOrNothingAmount: 0,
+            // Anti-spam clicking
+            lastClickTime: 0,
+            clickCooldownPenalties: 0,
+            spamWarned: false,
+            // Doom level near $1M
+            doomLevelShown: false,
+        };
+
+        const TARGET = 1000000;
+        const THEMES = ['', 'theme-red', 'theme-blue', 'theme-green', 'theme-purple'];
+        const CLICK_COOLDOWN_MS = 400; // minimum ms between clicks
+
+        // ===== EMOJI LIST =====
+        const EMOJIS = ['😎', '🤠', '👻', '🎃', '💀', '🤖', '👽', '🦊', '🐱', '🐶', '🦄', '🐲', '🔥', '⚡', '💎', '🎯', '🧠', '👑', '🎭', '🃏', '🦇', '🐙', '🍀', '🌈', '💰', '🎪', '🦅', '🐺'];
+
+        // ===== PATTERN SYSTEM =====
+        function generatePattern(level) {
+            const patterns = {
+                easy: [1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
+                medium: [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+                hard: [1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0],
+                brutal: [1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+            };
+            if (level <= 4) return [...patterns.easy];
+            if (level <= 10) return [...patterns.medium];
+            if (level <= 16) return [...patterns.hard];
+            return [...patterns.brutal];
+        }
+
+        function getNextOutcome() {
+            if (G.patternSeq.length === 0 || G.patternPos >= G.patternSeq.length) {
+                G.patternSeq = generatePattern(G.level);
+                for (let i = G.patternSeq.length - 1; i > 0; i--) {
+                    if (Math.random() < 0.2) {
+                        const j = Math.max(0, i - rand(1, 3));
+                        [G.patternSeq[i], G.patternSeq[j]] = [G.patternSeq[j], G.patternSeq[i]];
+                    }
+                }
+                G.patternPos = 0;
+            }
+            const result = G.patternSeq[G.patternPos];
+            G.patternPos++;
+            if (result === 1 && G.money > 500000 && Math.random() < 0.15) return 0;
+            if (result === 0 && G.streak >= 5 && Math.random() < 0.1) return 1;
+            return result;
+        }
+
+        function getPatternHint() {
+            if (G.level < 3) return '';
+            const remaining = G.patternSeq.slice(G.patternPos, G.patternPos + 5);
+            if (remaining.length < 3) return '';
+            const wins = remaining.filter(x => x === 1).length;
+            if (wins >= 4) return '📊 Pattern looks favorable...';
+            if (wins <= 1) return '⚠️ Danger zone ahead...';
+            return '📊 Mixed signals...';
+        }
+
+        // ===== INSULTS =====
+        const INSULTS = {
+            mild: ["Brave.", "Optimistic.", "Interesting.", "Noted.", "Bold.", "You tried.", "Okay then."],
+            medium: ["Impulse control isn't your thing.", "You panic-clicked.", "Predictable.", "Classic.", "Was that strategy?", "You flinched.", "Interesting technique — losing."],
+            savage: ["Skill issue.", "Greed detected.", "Embarrassing.", "You could've stopped.", "The house always wins.", "Your luck called in sick.", "Statistically impressive — at failing."]
+        };
+
+        const TAUNTS = [
+            m => `$${fmt(m)}? That's cute.`,
+            m => `$${fmt(m)}. Legendary cowardice.`,
+            m => `Playing safe at $${fmt(m)}. Boring.`,
+            m => `$${fmt(m)}. Are you... satisfied?`,
+            m => `Most players don't stop this early.`,
+        ];
+
+        const FAKE_LB = [
+            { name: "xX_NoFear_Xx", emoji: "💀", amount: 1000000, tries: 3 },
+            { name: "LuckGod_42", emoji: "🍀", amount: 1000000, tries: 7 },
+            { name: "Player_8291", emoji: "🤖", amount: 1000000, tries: 12 },
+            { name: "ColdBlood", emoji: "🦊", amount: 524288, tries: 1 },
+            { name: "GrindMaster", emoji: "🔥", amount: 1000000, tries: 22 },
+        ];
+
+        // ===== PERSONAL QUESTIONS =====
+        const PERSONAL_QUESTIONS = [
+            {
+                id: 'gore',
+                q: "Do you like gore? 🩸",
+                options: ["Yes", "No"],
+                results: {
+                    "Yes": { money: -0.5, msg: "Yikes... That's concerning. -50% earnings as therapy fund. 🏥", type: 'bad' },
+                    "No": { money: 100, msg: "Good. You're normal. Here's $100 for being sane. ✅", type: 'good' }
+                }
+            },
+            {
+                id: 'gf',
+                q: "Do you have a girlfriend? 💕",
+                options: ["Yes", "No"],
+                results: {
+                    "Yes": { money: -50, msg: "Enjoy while it lasts... 💔 -$50", type: 'bad' },
+                    "No": { money: 100, msg: "Here's $100. Buy yourself a dildo. 🍆", type: 'neutral' }
+                }
+            },
+            {
+                id: 'sleep',
+                q: "Do you sleep with your socks on? 🧦",
+                options: ["Yes", "No"],
+                results: {
+                    "Yes": { money: -0.3, msg: "You're a psychopath. -30% earnings. 🚨", type: 'bad' },
+                    "No": { money: 200, msg: "Acceptable human behavior. +$200 🎉", type: 'good' }
+                }
+            },
+            {
+                id: 'pineapple',
+                q: "Pineapple on pizza? 🍕🍍",
+                options: ["Yes, love it!", "Absolutely not"],
+                results: {
+                    "Yes, love it!": { money: -0.25, msg: "You disgust me. -25% earnings. 🤮", type: 'bad' },
+                    "Absolutely not": { money: 150, msg: "A person of culture. +$150 👑", type: 'good' }
+                }
+            },
+            {
+                id: 'toilet',
+                q: "Do you use your phone on the toilet? 📱🚽",
+                options: ["Obviously", "No that's gross"],
+                results: {
+                    "Obviously": { money: 50, msg: "Honesty is rewarded. But still gross. +$50 🤷", type: 'neutral' },
+                    "No that's gross": { money: -100, msg: "LIAR. -$100 for dishonesty. 🤥", type: 'bad' }
+                }
+            },
+            {
+                id: 'rich',
+                q: "Do you think you'll ever be rich? 💰",
+                options: ["Yes!", "Probably not"],
+                results: {
+                    "Yes!": { money: -0.4, msg: "Delusional confidence. -40% earnings. The market punishes dreamers. 📉", type: 'bad' },
+                    "Probably not": { money: 300, msg: "Self-awareness is rare. +$300 for realism. 🧠", type: 'good' }
+                }
+            },
+            {
+                id: 'cereal',
+                q: "Cereal or milk first? 🥣",
+                options: ["Cereal first", "Milk first"],
+                results: {
+                    "Cereal first": { money: 100, msg: "Normal. +$100 ✅", type: 'good' },
+                    "Milk first": { money: -0.5, msg: "You're a danger to society. -50% earnings. 🚔", type: 'bad' }
+                }
+            },
+            {
+                id: 'ghost',
+                q: "Have you ever ghosted someone? 👻",
+                options: ["...yes", "Never!"],
+                results: {
+                    "...yes": { money: -200, msg: "Karma is real. -$200 💀", type: 'bad' },
+                    "Never!": { money: -100, msg: "Doubt. -$100 for lying. Nobody's that nice. 🙄", type: 'bad' }
+                }
+            },
+            {
+                id: 'honest',
+                q: "Are you playing this game at work? 🏢",
+                options: ["Yes lol", "No"],
+                results: {
+                    "Yes lol": { money: 500, msg: "Living dangerously! +$500 for the thrill! 🎰", type: 'good' },
+                    "No": { money: -50, msg: "Boring. Get a life. -$50 😴", type: 'neutral' }
+                }
+            },
+            {
+                id: 'age',
+                q: "Are you over 25? 🎂",
+                options: ["Yes", "No"],
+                results: {
+                    "Yes": { money: -150, msg: "And you're playing THIS? Grow up. -$150 👴", type: 'bad' },
+                    "No": { money: 200, msg: "Youth is wasted on the young. +$200 🌟", type: 'good' }
+                }
+            },
+        ];
+
+        const LEVEL_CONFIG = {
+            1: { name: "Pure Greed", phase: 1, desc: "Tap to double. Simple.", baseCrash: 8, features: [] },
+            2: { name: "The Odds", phase: 1, desc: "Now with crash chance display.", baseCrash: 12, features: ['showCrash'] },
+            3: { name: "Ego Boost", phase: 1, desc: "You're doing great. Probably.", baseCrash: 14, features: ['egoBoost', 'showCrash'] },
+            4: { name: "Quick Question", phase: 1, desc: "Answer correctly for a bonus.", baseCrash: 12, features: ['gkQuestion'] },
+            5: { name: "Taunts Begin", phase: 2, desc: "We have opinions now.", baseCrash: 16, features: ['taunts', 'showCrash'] },
+            6: { name: "Time Pressure", phase: 2, desc: "3 seconds. Decide.", baseCrash: 15, features: ['timer', 'showCrash'] },
+            7: { name: "False Safety", phase: 2, desc: "A safe button appears...", baseCrash: 18, features: ['fakeSafety', 'showCrash'] },
+            8: { name: "Multipliers", phase: 2, desc: "Risk more, win more.", baseCrash: 15, features: ['multipliers', 'showCrash'] },
+            9: { name: "Pop Quiz", phase: 2, desc: "GK time. Think fast.", baseCrash: 18, features: ['gkQuestion', 'showCrash'] },
+            10: { name: "Confidence Trap", phase: 2, desc: "Early cashout = judgment.", baseCrash: 18, features: ['confidenceTrap', 'showCrash'] },
+            11: { name: "Distractions", phase: 3, desc: "Stay focused.", baseCrash: 20, features: ['fakePopups', 'showCrash'] },
+            12: { name: "Memory Twist", phase: 3, desc: "Remember the code.", baseCrash: 18, features: ['memoryCode'] },
+            13: { name: "Reverse Logic", phase: 3, desc: "Everything is backwards.", baseCrash: 20, features: ['reverseLogic'] },
+            14: { name: "Patience Test", phase: 3, desc: "Wait. Just wait.", baseCrash: 15, features: ['patience'] },
+            15: { name: "Reaction Time", phase: 3, desc: "Click the gold. 300ms.", baseCrash: 10, features: ['reactionFlash'] },
+            16: { name: "Brain Teaser", phase: 3, desc: "Harder GK...", baseCrash: 20, features: ['gkQuestion', 'showCrash'] },
+            17: { name: "Loan Shark", phase: 4, desc: "Out of cash? We'll help.", baseCrash: 22, features: ['loans', 'showCrash'] },
+            18: { name: "Second Chance", phase: 4, desc: "Recovery exists. Maybe.", baseCrash: 20, features: ['fakeRecovery', 'showCrash'] },
+            19: { name: "Leaderboard", phase: 4, desc: "See how others did.", baseCrash: 22, features: ['fakeLB', 'showCrash'] },
+            20: { name: "Final Illusion", phase: 4, desc: "One last test.", baseCrash: 25, features: ['finalIllusion'] },
+        };
+
+        // Special levels inserted between normal levels
+        const SPECIAL_LEVEL_TYPES = ['graphPredict', 'personalQ', 'bitcoinInvest', 'graphPredict', 'personalQ', 'bitcoinInvest', 'graphPredict', 'personalQ'];
+
+        const MILESTONES = [50, 100, 500, 1000, 5000, 10000, 50000, 100000, 250000, 500000, 750000];
+
+        const ACHIEVEMENTS = {
+            firstBlood: { name: "💔 First Blood", desc: "Crash for the first time", check: () => G.crashes >= 1 },
+            coward: { name: "🐔 Coward", desc: "Cash out at $16 or less", check: () => G.money <= 16 && G.money > 0 && G.cashouts > 0 },
+            greedy: { name: "🤑 Greedy", desc: "Reach $500,000", check: () => G.peakMoney >= 500000 },
+            hotStreak: { name: "🔥 On Fire", desc: "Win 8 in a row", check: () => G.streak >= 8 },
+            resilient: { name: "💪 Resilient", desc: "Crash 15 times and keep going", check: () => G.crashes >= 15 },
+            patient: { name: "⏳ Patient", desc: "Play for 10+ minutes", check: () => (Date.now() - G.startTime) > 600000 },
+            winner: { name: "🏆 Winner", desc: "Reach $1,000,000!", check: () => G.money >= TARGET },
+            indebt: { name: "💀 Deep Debt", desc: "$10,000+ in debt", check: () => G.debt >= 10000 },
+            addicted: { name: "🎰 Addicted", desc: "Click 50 times in one round", check: () => G.roundClicks >= 50 },
+        };
+
+        // ===== UTILS =====
+        function fmt(n) {
+            if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
+            if (n >= 1000) return n.toLocaleString();
+            return Math.floor(n).toString();
+        }
+
+        function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+        function chance(p) { return Math.random() * 100 < p; }
+        function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+        function getInsult() {
+            let cat = G.crashes < 3 ? 'mild' : G.crashes < 8 ? 'medium' : 'savage';
+            return pick(INSULTS[cat]);
+        }
+
+        function getCrashDisplay() {
+            const cfg = LEVEL_CONFIG[G.level] || LEVEL_CONFIG[20];
+            let fake = cfg.baseCrash + rand(-3, 3);
+            return Math.max(5, Math.min(fake, 45));
+        }
+
+        // ===== API HELPERS =====
+        async function apiPost(path, data) {
+            try {
+                const r = await fetch(API + path, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await r.json();
+            } catch (e) {
+                console.warn('API error:', e);
+                return { error: 'Network error' };
+            }
+        }
+
+        async function apiGet(path) {
+            try {
+                const r = await fetch(API + path);
+                return await r.json();
+            } catch (e) {
+                console.warn('API error:', e);
+                return { error: 'Network error' };
+            }
+        }
+
+        async function fetchGKQuestions(difficulty = 'easy', count = 5) {
+            const data = await apiGet(`/api/trivia?difficulty=${difficulty}&count=${count}`);
+            if (data.questions && data.questions.length > 0) {
+                return data.questions;
+            }
+            return null;
+        }
+
+        async function updateServerScore() {
+            if (!G.session) return;
+            await apiPost('/api/update_score', { session: G.session, score: G.money });
+        }
+
+        async function submitFinalScore() {
+            if (!G.session) return;
+            await apiPost('/api/score', {
+                session: G.session,
+                score: G.peakMoney,
+                crashes: G.crashes,
+                streak: G.maxStreak,
+                level: G.level,
+                clicks: G.totalClicks,
+                cashouts: G.cashouts,
+                play_time: Math.floor((Date.now() - G.startTime) / 1000),
+            });
+        }
+
+        // ===== STORAGE =====
+        function loadHS() { try { G.highScore = parseInt(localStorage.getItem('gt_hs') || '0'); } catch { G.highScore = 0; } }
+        function saveHS() { if (G.peakMoney > G.highScore) { G.highScore = G.peakMoney; try { localStorage.setItem('gt_hs', G.highScore.toString()); } catch { } } updateServerScore(); }
+        function loadAch() { try { G.achievements = JSON.parse(localStorage.getItem('gt_ach') || '{}'); } catch { G.achievements = {}; } }
+        function getStats() { try { return JSON.parse(localStorage.getItem('gt_stats') || '{}'); } catch { return {}; } }
+        function saveStats() {
+            const s = getStats();
+            s.plays = (s.plays || 0) + 1;
+            s.crashes = (s.crashes || 0) + G.crashes;
+            s.best = Math.max(s.best || 0, G.peakMoney);
+            try { localStorage.setItem('gt_stats', JSON.stringify(s)); } catch { }
+        }
+        function loadSession() {
+            try {
+                const s = JSON.parse(localStorage.getItem('gt_session') || 'null');
+                if (s && s.session) {
+                    G.session = s.session;
+                    G.username = s.username;
+                    G.userEmoji = s.emoji || '😎';
+                    G.loggedIn = true;
+                    // Validate session with backend asynchronously
+                    apiPost('/api/check_session', { session: s.session }).then(r => {
+                        if (r.success && r.user) {
+                            G.username = r.user.username;
+                            G.userEmoji = r.user.emoji || G.userEmoji;
+                            G.highScore = Math.max(G.highScore, r.user.high_score || 0);
+                        } else {
+                            // Session expired
+                            G.session = null;
+                            G.username = null;
+                            G.loggedIn = false;
+                            try { localStorage.removeItem('gt_session'); } catch { }
+                        }
+                    });
+                }
+            } catch { }
+        }
+        function saveSession() {
+            try {
+                localStorage.setItem('gt_session', JSON.stringify({
+                    session: G.session,
+                    username: G.username,
+                    emoji: G.userEmoji
+                }));
+            } catch { }
+        }
+
+        // ===== EFFECTS =====
+        function shake() { document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 400); }
+
+        function floatNum(amount, loss) {
+            const el = document.createElement('div');
+            el.className = 'float-num';
+            el.style.color = loss ? 'var(--danger)' : 'var(--gold)';
+            el.style.left = (window.innerWidth / 2 - 30 + rand(-20, 20)) + 'px';
+            el.style.top = (window.innerHeight / 2 + rand(-15, 15)) + 'px';
+            el.textContent = loss ? `-$${fmt(amount)}` : `+$${fmt(amount)}`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function showMilestone(text) {
+            const el = document.createElement('div');
+            el.className = 'milestone-flash';
+            el.textContent = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function checkMilestones() {
+            for (const m of MILESTONES) {
+                if (G.money >= m && !G.milestonesHit[m]) {
+                    G.milestonesHit[m] = true;
+                    showMilestone(`$${fmt(m)}! 🎉`);
+                    return;
+                }
+            }
+        }
+
+        function checkAch() {
+            for (const [k, a] of Object.entries(ACHIEVEMENTS)) {
+                if (!G.achievements[k] && a.check()) {
+                    G.achievements[k] = true;
+                    showAchToast(a.name, a.desc);
+                    try { const s = JSON.parse(localStorage.getItem('gt_ach') || '{}'); s[k] = true; localStorage.setItem('gt_ach', JSON.stringify(s)); } catch { }
+                }
+            }
+        }
+
+        function showAchToast(name, desc) {
+            const t = document.createElement('div');
+            t.className = 'ach-toast';
+            t.innerHTML = `<div class="at-title">🏆 Achievement!</div><div class="at-desc">${name} — ${desc}</div>`;
+            document.body.appendChild(t);
+            setTimeout(() => { if (t.parentElement) t.remove(); }, 3100);
+        }
+
+        function isFirst(f) { if (!G.firstFeats[f]) { G.firstFeats[f] = true; return true; } return false; }
+
+        function getTip(f) {
+            const tips = {
+                showCrash: '💡 The % shown is the crash risk. Lower = safer!',
+                timer: '💡 NEW: 3-second timer! Decide fast or lose!',
+                multipliers: '💡 NEW: Pick x2, x3, or x10 multiplier. Higher = riskier!',
+                fakeSafety: '💡 NEW: "Safe" button appeared. But is it really safe?',
+                reverseLogic: '💡 REVERSE: Red button = SAFE, Green button = CRASH!',
+                memoryCode: '💡 NEW: Memorize a code, then type it correctly.',
+                patience: '💡 NEW: Wait 10 seconds. Clicking early = crash!',
+                reactionFlash: '💡 NEW: Click ONLY when circle turns GOLD!',
+                loans: '💡 NEW: Borrow money — but the debt is brutal.',
+                fakePopups: '💡 Fake popups will distract you. Ignore them!',
+                gkQuestion: '💡 Answer GK questions correctly for bonuses!',
+                finalIllusion: '💡 FINAL: One 50/50 chance. This is it.',
+            };
+            return tips[f] || null;
+        }
+
+        // ===== RAGE =====
+        function startRage() {
+            if (G.themeTimer) clearInterval(G.themeTimer);
+            G.themeTimer = setInterval(() => {
+                if (G.screen !== 'game' || !G.gameActive || G.level < 8) return;
+                if (chance(12)) {
+                    document.body.className = pick(THEMES);
+                    setTimeout(() => { if (G.screen === 'game') document.body.className = ''; }, rand(2000, 4000));
+                }
+            }, rand(10000, 20000));
+
+            if (G.flashTimer) clearInterval(G.flashTimer);
+            G.flashTimer = setInterval(() => {
+                if (G.screen !== 'game' || !G.gameActive || G.level < 8) return;
+                if (chance(6)) {
+                    document.body.classList.add('flash-red');
+                    setTimeout(() => document.body.classList.remove('flash-red'), rand(100, 400));
+                    G.rageEvents++;
+                }
+            }, rand(15000, 30000));
+        }
+
+        let fakeEl = null;
+        function showFake(type) {
+            if (fakeEl) fakeEl.remove();
+            const msgs = {
+                disconnect: { t: "⚠️ Connection Lost", b: "Reconnecting...", btn: "Dismiss" },
+                battery: { t: "🔋 Battery Critical", b: "1% remaining.", btn: "OK" },
+                recording: { t: "👁️ Notice", b: "Your actions are being recorded.", btn: "OK" },
+            };
+            const m = msgs[type] || msgs.disconnect;
+            fakeEl = document.createElement('div');
+            fakeEl.className = 'fake-popup';
+            fakeEl.style.top = '50%'; fakeEl.style.left = '50%';
+            fakeEl.style.transform = 'translate(-50%, -50%)';
+            fakeEl.innerHTML = `<h3>${m.t}</h3><p>${m.b}</p><button class="btn btn-sm" onclick="this.parentElement.remove()">${m.btn}</button>`;
+            document.body.appendChild(fakeEl);
+            setTimeout(() => { if (fakeEl && fakeEl.parentElement) fakeEl.remove(); }, 4000);
+        }
+
+        function maybeRage() {
+            if (G.level < 8) return;
+            const r = Math.random();
+            if (r < 0.04 && G.level >= 11) showFake('disconnect');
+            else if (r < 0.07 && G.level >= 11) showFake('battery');
+            else if (r < 0.1) { G.inputDelay = true; setTimeout(() => G.inputDelay = false, rand(800, 2000)); }
+            else if (r < 0.13) { document.body.classList.add('cursor-wait'); setTimeout(() => document.body.classList.remove('cursor-wait'), rand(800, 1500)); }
+        }
+
+        // ===== TIMERS =====
+        const app = document.getElementById('app');
+
+        function clearT() {
+            if (G.timerInt) { clearInterval(G.timerInt); G.timerInt = null; }
+            if (G.waitInt) { clearInterval(G.waitInt); G.waitInt = null; }
+            if (G.flashInt) { clearTimeout(G.flashInt); G.flashInt = null; }
+            if (G.gkTimerInt) { clearInterval(G.gkTimerInt); G.gkTimerInt = null; }
+        }
+
+        function clearAll() {
+            clearT();
+            if (G.themeTimer) { clearInterval(G.themeTimer); G.themeTimer = null; }
+            if (G.flashTimer) { clearInterval(G.flashTimer); G.flashTimer = null; }
+        }
+
+        // ===== NEGATIVE MONEY CHECK =====
+        function checkNegative() {
+            if (G.money < 0) {
+                G.money = 0;
+                G.kicked = true;
+                showKicked();
+                return true;
+            }
+            return false;
+        }
+
+        function showKicked() {
+            G.screen = 'kicked';
+            G.gameActive = false;
+            clearAll();
+            document.body.className = '';
+            submitFinalScore();
+
+            app.innerHTML = `
+    <h1 class="title" style="color:var(--danger);text-shadow:0 0 20px var(--danger)">BANKRUPT</h1>
+    <div class="card glow-red">
+      <div class="money-display crash-anim" style="color:var(--danger)">$0</div>
+      <p style="color:var(--danger);font-size:0.9em;font-weight:700;margin:10px 0">You went broke.</p>
+      <p style="color:#666;font-size:0.78em;line-height:1.6">
+        Your balance dropped below zero.<br>The house doesn't do charity.<br>Game over.
+      </p>
+    </div>
+    <div class="msg-box msg-danger">"${getInsult()}"</div>
+    <div class="btn-group" style="margin-top:8px">
+      <button class="btn btn-main" onclick="startGame()">🔄 Start Over</button>
+      <button class="btn btn-sm" onclick="showShare()">📊 Stats</button>
+    </div>
+  `;
+        }
+
+        // ===== AUTH SCREENS =====
+        function showAuthScreen(callback) {
+            G.screen = 'auth';
+            const hasAccount = G.loggedIn;
+
+            app.innerHTML = `
+    <h1 class="title">The Greed Trial</h1>
+    <p class="subtitle">You must be identified.</p>
+    <div class="card glow-green">
+      <div id="auth-tabs" style="display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+        <button class="btn btn-sm" id="tab-login" onclick="showLoginTab()" style="flex:1;border-radius:0;border:none;min-height:40px;${!hasAccount ? '' : 'background:color-mix(in srgb, var(--accent) 15%, transparent)'}">Login</button>
+        <button class="btn btn-sm" id="tab-signup" onclick="showSignupTab()" style="flex:1;border-radius:0;border:none;min-height:40px;${hasAccount ? '' : 'background:color-mix(in srgb, var(--accent) 15%, transparent)'}">Sign Up</button>
+      </div>
+      <div id="auth-form"></div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Login or create an account to play</div>
+  `;
+
+            window._authCallback = callback;
+            if (hasAccount) showLoginTab(); else showSignupTab();
+        }
+
+        function showLoginTab() {
+            document.getElementById('tab-login').style.background = 'color-mix(in srgb, var(--accent) 15%, transparent)';
+            document.getElementById('tab-signup').style.background = 'transparent';
+            document.getElementById('auth-form').innerHTML = `
+    <input class="auth-input" id="login-user" type="text" placeholder="Username" autocomplete="username">
+    <input class="auth-input" id="login-pass" type="password" placeholder="Password" autocomplete="current-password" style="margin-top:8px">
+    <div style="margin-top:14px">
+      <button class="btn btn-main" onclick="doLogin()" style="font-size:0.95em">🔑 Login</button>
+    </div>
+  `;
+            setTimeout(() => document.getElementById('login-user')?.focus(), 100);
+        }
+
+        function showSignupTab() {
+            document.getElementById('tab-signup').style.background = 'color-mix(in srgb, var(--accent) 15%, transparent)';
+            document.getElementById('tab-login').style.background = 'transparent';
+            document.getElementById('auth-form').innerHTML = `
+    <input class="auth-input" id="signup-user" type="text" placeholder="Choose username" autocomplete="off" maxlength="20">
+    <input class="auth-input" id="signup-pass" type="password" placeholder="Password" autocomplete="new-password" style="margin-top:8px">
+    <p style="font-size:0.65em;color:var(--muted);margin:10px 0">Pick your avatar:</p>
+    <div class="emoji-grid" id="emoji-grid">
+      ${EMOJIS.map(e => `<div class="emoji-opt ${e === '😎' ? 'selected' : ''}" data-emoji="${e}" onclick="pickEmoji(this,'${e}')">${e}</div>`).join('')}
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-main" onclick="doSignup()" style="font-size:0.95em">🚀 Create Account</button>
+    </div>
+  `;
+            window._selectedEmoji = '😎';
+            setTimeout(() => document.getElementById('signup-user')?.focus(), 100);
+        }
+
+        function pickEmoji(el, emoji) {
+            document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            window._selectedEmoji = emoji;
+        }
+
+        async function doLogin() {
+            const user = document.getElementById('login-user')?.value?.trim();
+            const pass = document.getElementById('login-pass')?.value?.trim();
+            if (!user || !pass) { setMsg('Fill in both fields', 'danger'); return; }
+
+            setMsg('🔄 Logging in...', 'info');
+            const r = await apiPost('/api/login', { username: user, password: pass });
+            if (r.error) {
+                setMsg(`❌ ${r.error}`, 'danger');
+                shake();
+            } else {
+                G.session = r.token;
+                G.username = r.user?.username || user;
+                G.userEmoji = r.user?.emoji || '😎';
+                G.loggedIn = true;
+                saveSession();
+                setMsg(`✅ Welcome back, ${G.userEmoji} ${G.username}!`, 'good');
+                setTimeout(() => { if (window._authCallback) window._authCallback(); }, 800);
+            }
+        }
+
+        async function doSignup() {
+            const user = document.getElementById('signup-user')?.value?.trim();
+            const pass = document.getElementById('signup-pass')?.value?.trim();
+            const emoji = window._selectedEmoji || '😎';
+            if (!user || !pass) { setMsg('Fill in both fields', 'danger'); return; }
+            if (user.length < 2) { setMsg('Username too short (min 2)', 'danger'); return; }
+            if (pass.length < 3) { setMsg('Password too short (min 3)', 'danger'); return; }
+
+            setMsg('🔄 Creating account...', 'info');
+            const r = await apiPost('/api/signup', { username: user, password: pass, emoji });
+            if (r.error) {
+                setMsg(`❌ ${r.error}`, 'danger');
+                shake();
+            } else {
+                G.session = r.token;
+                G.username = r.user?.username || user;
+                G.userEmoji = r.user?.emoji || emoji;
+                G.loggedIn = true;
+                saveSession();
+                setMsg(`✅ Account created! Welcome, ${G.userEmoji} ${G.username}!`, 'good');
+                setTimeout(() => { if (window._authCallback) window._authCallback(); }, 800);
+            }
+        }
+
+        // ===== IN-GAME ACCOUNT CREATION LEVEL =====
+        function showAccountCreateLevel() {
+            G.screen = 'accountCreate';
+            clearT();
+
+            if (G.loggedIn && G.authDoneInGame) {
+                // Already logged in AND already did this level — show a fake login
+                showFakeLogin();
+                return;
+            }
+
+            if (G.loggedIn && !G.authDoneInGame) {
+                // Logged in before game but haven't seen this level yet — fake login (easy, no timer stress)
+                G.authDoneInGame = true;
+                showFakeLogin();
+                return;
+            }
+
+            // Not logged in — real account creation with timer suspense
+            G.authDoneInGame = true;
+            let timeLeft = 60;
+            let timerDone = false;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--warning)">⏰ IDENTITY CHECK</h1>
+    <div class="card glow-gold">
+      <p style="color:var(--danger);font-size:0.85em;font-weight:700;margin-bottom:8px">Create an account to continue!</p>
+      <div class="account-timer ok" id="act-timer">${timeLeft}s</div>
+      <div class="timer-bar"><div class="timer-bar-fill" id="act-bar" style="background:linear-gradient(90deg,var(--accent),var(--gold))"></div></div>
+      <p style="color:var(--muted);font-size:0.68em;margin:8px 0">Your earnings are at stake: <span style="color:var(--gold)">$${fmt(G.money)}</span></p>
+
+      <input class="auth-input" id="act-user" type="text" placeholder="Choose username" maxlength="20" autocomplete="off">
+      <input class="auth-input" id="act-pass" type="password" placeholder="Password" autocomplete="new-password" style="margin-top:6px">
+
+      <p style="font-size:0.6em;color:var(--muted);margin:8px 0">Pick avatar:</p>
+      <div class="emoji-grid" id="emoji-grid">
+        ${EMOJIS.slice(0, 18).map(e => `<div class="emoji-opt ${e === '😎' ? 'selected' : ''}" data-emoji="${e}" onclick="pickEmoji(this,'${e}')">${e}</div>`).join('')}
+      </div>
+
+      <div style="margin-top:12px">
+        <button class="btn btn-main" onclick="doAccountCreateLevel()" style="font-size:0.95em" id="act-btn">🚀 Create & Continue</button>
+      </div>
+    </div>
+    <div class="msg-box msg-warn" id="msg">⏰ Hurry! Time is running out!</div>
+  `;
+
+            window._selectedEmoji = '😎';
+            setTimeout(() => document.getElementById('act-user')?.focus(), 100);
+
+            G.timerInt = setInterval(() => {
+                if (timerDone || G.screen !== 'accountCreate') { clearInterval(G.timerInt); return; }
+                timeLeft--;
+                const el = document.getElementById('act-timer');
+                const bar = document.getElementById('act-bar');
+                if (el) {
+                    el.textContent = timeLeft + 's';
+                    el.className = 'account-timer ' + (timeLeft <= 10 ? 'urgent' : timeLeft <= 25 ? 'warn' : 'ok');
+                }
+                if (bar) bar.style.width = (timeLeft / 60 * 100) + '%';
+
+                if (timeLeft <= 15 && timeLeft > 10) setMsg('⚠️ Running out of time!', 'warn');
+                if (timeLeft <= 10) setMsg('🚨 HURRY UP! ' + timeLeft + 's left!', 'danger');
+                if (timeLeft <= 5) shake();
+
+                if (timeLeft <= 0) {
+                    timerDone = true;
+                    clearInterval(G.timerInt);
+                    setMsg('⏰ Time\'s up! -50% earnings!', 'danger');
+                    G.money = Math.floor(G.money * 0.5);
+                    floatNum(G.money, true);
+                    shake();
+                    setTimeout(() => proceedFromSpecial(), 1500);
+                }
+            }, 1000);
+
+            window._actTimerDone = () => { timerDone = true; };
+        }
+
+        async function doAccountCreateLevel() {
+            const user = document.getElementById('act-user')?.value?.trim();
+            const pass = document.getElementById('act-pass')?.value?.trim();
+            const emoji = window._selectedEmoji || '😎';
+
+            if (!user || !pass) { setMsg('Fill in both fields!', 'danger'); shake(); return; }
+            if (user.length < 2) { setMsg('Username too short!', 'danger'); return; }
+
+            const btn = document.getElementById('act-btn');
+            if (btn) { btn.disabled = true; btn.textContent = '🔄 Creating...'; }
+
+            const r = await apiPost('/api/signup', { username: user, password: pass, emoji });
+            if (r.error) {
+                if (btn) { btn.disabled = false; btn.textContent = '🚀 Create & Continue'; }
+                // If username taken, try login
+                if (r.error.includes('taken')) {
+                    setMsg('Username taken! Trying login...', 'warn');
+                    const lr = await apiPost('/api/login', { username: user, password: pass });
+                    if (lr.error) {
+                        setMsg(`❌ ${lr.error}`, 'danger');
+                        shake();
+                        return;
+                    }
+                    G.session = lr.session;
+                    G.username = lr.username;
+                    G.userEmoji = lr.emoji || emoji;
+                } else {
+                    setMsg(`❌ ${r.error}`, 'danger');
+                    shake();
+                    return;
+                }
+            } else {
+                G.session = r.session;
+                G.username = r.username;
+                G.userEmoji = r.emoji || emoji;
+            }
+
+            G.loggedIn = true;
+            saveSession();
+            if (window._actTimerDone) window._actTimerDone();
+            clearT();
+
+            setMsg(`✅ Welcome ${G.userEmoji} ${G.username}! +$200 bonus!`, 'good');
+            G.money += 200;
+            floatNum(200, false);
+            setTimeout(() => proceedFromSpecial(), 1200);
+        }
+
+        function showFakeLogin() {
+            // Fake login for already-logged-in users — easy, no real timer pressure
+            G.screen = 'accountCreate';
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--warning)">🔐 SECURITY CHECK</h1>
+    <div class="card">
+      <p style="color:var(--muted);font-size:0.82em;margin-bottom:12px">Verify your identity to continue</p>
+      <div style="font-size:3em;margin:10px 0">${G.userEmoji}</div>
+      <p style="color:var(--accent);font-size:0.9em;font-weight:700">${G.username}</p>
+      <input class="auth-input" id="fake-pass" type="password" placeholder="Re-enter password" autocomplete="current-password" style="margin-top:12px">
+      <div style="margin-top:14px">
+        <button class="btn btn-main" onclick="doFakeLogin()" style="font-size:0.95em">🔓 Verify</button>
+      </div>
+      <p style="color:var(--faint);font-size:0.58em;margin-top:10px">⏰ No rush — take your time</p>
+    </div>
+    <div class="msg-box msg-info" id="msg">Standard security verification</div>
+  `;
+
+            setTimeout(() => document.getElementById('fake-pass')?.focus(), 100);
+        }
+
+        function doFakeLogin() {
+            const pass = document.getElementById('fake-pass')?.value?.trim();
+            if (!pass) {
+                // Accept anything for fake login — just make them type something
+                setMsg('Type something, anything...', 'warn');
+                return;
+            }
+            // Always succeed
+            setMsg(`✅ Verified! Welcome back, ${G.userEmoji} ${G.username}`, 'good');
+            G.money += 50;
+            floatNum(50, false);
+            setTimeout(() => proceedFromSpecial(), 800);
+        }
+
+        // ===== GRAPH PREDICTION LEVEL =====
+        function generateGraphData() {
+            const data = [50];
+            for (let i = 1; i < 30; i++) {
+                const change = (Math.random() - 0.48) * 12;
+                data.push(Math.max(5, Math.min(95, data[i - 1] + change)));
+            }
+            return data;
+        }
+
+        function drawGraph(canvas, data, revealTo) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Grid
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                const y = (h / 5) * i;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // Data line
+            const step = w / (data.length - 1);
+            ctx.beginPath();
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 8;
+
+            const drawCount = Math.min(revealTo, data.length);
+            for (let i = 0; i < drawCount; i++) {
+                const x = i * step;
+                const y = h - (data[i] / 100) * h;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // End dot
+            if (drawCount > 0) {
+                const lastX = (drawCount - 1) * step;
+                const lastY = h - (data[drawCount - 1] / 100) * h;
+                ctx.beginPath();
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 12;
+                ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.shadowBlur = 0;
+
+            // Prediction zone
+            if (revealTo < data.length) {
+                ctx.fillStyle = 'rgba(255,215,0,0.05)';
+                ctx.fillRect(revealTo * step, 0, w - revealTo * step, h);
+                ctx.strokeStyle = '#ffd70044';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(revealTo * step, 0);
+                ctx.lineTo(revealTo * step, h);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function showGraphLevel() {
+            G.screen = 'graphPredict';
+            clearT();
+
+            const data = generateGraphData();
+            // Add future data (the answer)
+            const goesUp = Math.random() > 0.5;
+            const currentVal = data[data.length - 1];
+            for (let i = 0; i < 10; i++) {
+                const dir = goesUp ? 1 : -1;
+                const change = dir * (Math.random() * 8 + 2);
+                data.push(Math.max(5, Math.min(95, data[data.length - 1] + change)));
+            }
+
+            G.graphData = data;
+            window._graphGoesUp = goesUp;
+            window._graphRevealed = false;
+            window._graphBet = null;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--gold)">📈 Market Prediction</h1>
+    <div class="card glow-gold">
+      <p style="color:var(--muted);font-size:0.78em;margin-bottom:8px">Will the line go <span style="color:var(--accent)">UP</span> or <span style="color:var(--danger)">DOWN</span>?</p>
+      <p style="color:var(--gold);font-size:0.9em;font-weight:700">Your money: $${fmt(G.money)}</p>
+
+      <div class="graph-container">
+        <canvas class="graph-canvas" id="graph-canvas" width="440" height="200"></canvas>
+      </div>
+
+      <div class="btn-group" id="graph-btns">
+        <button class="btn btn-cashout" onclick="predictGraph('up')" style="min-width:120px">📈 Goes UP</button>
+        <button class="btn btn-danger" onclick="predictGraph('down')" style="min-width:120px">📉 Goes DOWN</button>
+      </div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Study the pattern. Make your prediction.</div>
+  `;
+
+            requestAnimationFrame(() => {
+                const canvas = document.getElementById('graph-canvas');
+                if (canvas) {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = 200;
+                    drawGraph(canvas, G.graphData, 30);
+                }
+            });
+        }
+
+        function predictGraph(direction) {
+            if (window._graphRevealed) return;
+            window._graphRevealed = true;
+            window._graphBet = direction;
+
+            const correct = (direction === 'up' && window._graphGoesUp) || (direction === 'down' && !window._graphGoesUp);
+
+            // Animate reveal
+            const canvas = document.getElementById('graph-canvas');
+            let revealPos = 30;
+            const revealInt = setInterval(() => {
+                revealPos++;
+                if (canvas) {
+                    drawGraph(canvas, G.graphData, revealPos);
+                }
+                if (revealPos >= G.graphData.length) {
+                    clearInterval(revealInt);
+                    showGraphResult(correct);
+                }
+            }, 80);
+
+            document.getElementById('graph-btns').innerHTML = `<p style="color:var(--muted);font-size:0.78em">Revealing...</p>`;
+        }
+
+        function showGraphResult(correct) {
+            if (correct) {
+                const winAmount = Math.max(100, Math.floor(G.money * 0.3));
+                setMsg(`📈 Correct! +$${fmt(winAmount)}!`, 'good');
+                G.money += winAmount;
+                floatNum(winAmount, false);
+
+                // Double or nothing
+                document.getElementById('graph-btns').innerHTML = `
+      <div style="text-align:center;width:100%">
+        <p style="color:var(--gold);font-size:0.85em;font-weight:700;margin-bottom:10px">🎰 Double or Nothing?</p>
+        <p style="color:var(--muted);font-size:0.68em;margin-bottom:10px">Risk your $${fmt(winAmount)} winnings for a 50/50 double!</p>
+        <div class="btn-group">
+          <button class="btn btn-main" onclick="graphDoubleOrNothing(${winAmount})" style="font-size:0.9em">🎲 Double It!</button>
+          <button class="btn btn-cashout btn-sm" onclick="proceedFromSpecial()">✅ Keep $${fmt(winAmount)}</button>
+        </div>
+      </div>
+    `;
+            } else {
+                shake();
+                // Random punishment
+                const punishRoll = Math.random();
+                if (punishRoll < 0.4) {
+                    // Lose half
+                    const loss = Math.floor(G.money * 0.5);
+                    G.money -= loss;
+                    floatNum(loss, true);
+                    setMsg(`📉 Wrong! -50% earnings (-$${fmt(loss)})`, 'danger');
+                    document.getElementById('graph-btns').innerHTML = `
+        <div style="text-align:center;width:100%">
+          <p style="color:var(--danger);font-size:0.78em;margin-bottom:10px">Lost half your money!</p>
+          <button class="btn btn-main" onclick="proceedFromSpecial()">😔 Continue</button>
+        </div>
+      `;
+                } else if (punishRoll < 0.7) {
+                    // Try again lose 1/4
+                    const loss = Math.floor(G.money * 0.25);
+                    G.money -= loss;
+                    floatNum(loss, true);
+                    setMsg(`📉 Wrong! -25% (-$${fmt(loss)}). Try again?`, 'warn');
+                    document.getElementById('graph-btns').innerHTML = `
+        <div style="text-align:center;width:100%">
+          <p style="color:var(--warning);font-size:0.78em;margin-bottom:10px">Lost 25%. Want to try another graph?</p>
+          <div class="btn-group">
+            <button class="btn btn-danger" onclick="showGraphLevel()">🎲 Try Again</button>
+            <button class="btn btn-cashout btn-sm" onclick="proceedFromSpecial()">➡️ Move On</button>
+          </div>
+        </div>
+      `;
+                } else {
+                    // False hope — "we'll be nice"
+                    setMsg(`📉 Wrong! But... we'll let it slide. This time. 😏`, 'warn');
+                    document.getElementById('graph-btns').innerHTML = `
+        <div style="text-align:center;width:100%">
+          <p style="color:var(--warning);font-size:0.78em;margin-bottom:10px">Lucky break! No penalty. Don't get used to it.</p>
+          <button class="btn btn-main" onclick="proceedFromSpecial()">😅 Continue</button>
+        </div>
+      `;
+                }
+            }
+            if (checkNegative()) return;
+        }
+
+        function graphDoubleOrNothing(amount) {
+            if (chance(50)) {
+                G.money += amount;
+                floatNum(amount, false);
+                setMsg(`🎰 DOUBLED! +$${fmt(amount)}!`, 'good');
+                showMilestone('DOUBLED! 🎰');
+            } else {
+                G.money -= amount;
+                floatNum(amount, true);
+                setMsg(`💀 Lost it all! -$${fmt(amount)}`, 'danger');
+                shake();
+            }
+            if (checkNegative()) return;
+            setTimeout(() => proceedFromSpecial(), 1200);
+        }
+
+        // ===== PERSONAL QUESTION LEVEL =====
+        function showPersonalQuestion() {
+            G.screen = 'personalQ';
+            clearT();
+
+            // Pick an unasked question
+            const available = PERSONAL_QUESTIONS.filter(q => !G.personalAsked[q.id]);
+            if (available.length === 0) {
+                // Reset if all asked
+                G.personalAsked = {};
+                proceedFromSpecial();
+                return;
+            }
+
+            const q = pick(available);
+            window._currentPersonalQ = q;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--purple)">🎭 Personal Round</h1>
+    <div class="card glow-purple">
+      <p style="color:var(--faint);font-size:0.65em;margin-bottom:6px">Your answer affects your earnings...</p>
+      <p class="personal-q">${q.q}</p>
+      <p style="color:var(--gold);font-size:0.78em;margin-bottom:12px">Current: $${fmt(G.money)}</p>
+      <div class="btn-group">
+        ${q.options.map(o => `<button class="btn btn-purple" onclick="answerPersonal('${o.replace(/'/g, "\\'")}')" style="min-width:140px">${o}</button>`).join('')}
+      </div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Be honest... or don't. We don't care. 😈</div>
+  `;
+        }
+
+        function answerPersonal(answer) {
+            const q = window._currentPersonalQ;
+            if (!q) return;
+
+            G.personalAsked[q.id] = true;
+            const result = q.results[answer];
+            if (!result) { proceedFromSpecial(); return; }
+
+            let moneyChange = 0;
+            if (typeof result.money === 'number' && result.money < 0 && result.money > -1) {
+                // Percentage loss
+                moneyChange = -Math.floor(G.money * Math.abs(result.money));
+            } else {
+                moneyChange = result.money;
+            }
+
+            G.money += moneyChange;
+            if (moneyChange > 0) floatNum(moneyChange, false);
+            else if (moneyChange < 0) { floatNum(Math.abs(moneyChange), true); shake(); }
+
+            const typeClass = result.type === 'bad' ? 'bad' : result.type === 'good' ? 'good' : 'neutral';
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--purple)">🎭 Personal Round</h1>
+    <div class="card glow-purple">
+      <p class="personal-q">${q.q}</p>
+      <p style="color:var(--muted);font-size:0.82em;margin:6px 0">You said: <strong style="color:var(--text)">"${answer}"</strong></p>
+      <div class="personal-result ${typeClass}">${result.msg}</div>
+      <div class="money-display" style="font-size:1.5em;color:${moneyChange >= 0 ? 'var(--accent)' : 'var(--danger)'}">
+        ${moneyChange >= 0 ? '+' : ''}$${fmt(Math.abs(moneyChange))}
+      </div>
+      <p style="color:var(--muted);font-size:0.72em">Balance: $${fmt(G.money)}</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">➡️ Continue</button>
+    <div class="msg-box ${typeClass === 'bad' ? 'msg-danger' : typeClass === 'good' ? 'msg-good' : 'msg-warn'}" id="msg">${result.msg}</div>
+  `;
+
+            if (checkNegative()) return;
+        }
+
+        // ===== GK QUESTION SYSTEM =====
+        async function showGKQuestion() {
+            G.screen = 'gkQuestion';
+            clearT();
+
+            // Determine difficulty based on gkLevel
+            let diff = 'easy';
+            if (G.gkLevel >= 10) diff = 'hard';
+            else if (G.gkLevel >= 5) diff = 'medium';
+
+            // Check cache first
+            if (G.gkQuestions[diff].length === 0) {
+                setMsg('🔄 Loading question...', 'info');
+                app.innerHTML = `
+      <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">❓ GK Challenge</h1>
+      <div class="card"><div class="verification-spinner"></div><p style="color:var(--muted);font-size:0.78em;margin-top:10px">Fetching question...</p></div>
+      <div class="msg-box msg-info" id="msg">Loading...</div>
+    `;
+
+                const questions = await fetchGKQuestions(diff, 10);
+                if (questions && questions.length > 0) {
+                    G.gkQuestions[diff] = questions;
+                } else {
+                    // Fallback
+                    G.gkQuestions[diff] = getLocalFallbackQuestions(diff);
+                }
+            }
+
+            if (G.gkQuestions[diff].length === 0) {
+                // Still no questions — skip
+                G.lastMsg = '❓ No questions available. Moving on...';
+                renderGame();
+                return;
+            }
+
+            const q = G.gkQuestions[diff].shift();
+            window._currentGK = q;
+            window._gkAnswered = false;
+
+            const reward = diff === 'easy' ? rand(100, 300) : diff === 'medium' ? rand(300, 600) : rand(500, 1000);
+            const penalty = Math.floor(reward * 0.6);
+            window._gkReward = reward;
+            window._gkPenalty = penalty;
+
+            // Timer for higher levels
+            const hasTimer = G.gkLevel >= 8;
+            const timerSecs = hasTimer ? (diff === 'hard' ? 8 : 10.6) : 0;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">❓ GK Challenge</h1>
+    <div class="card glow-gold">
+      <span class="level-badge phase-special">
+        ${diff.toUpperCase()} · ${q.category || 'General'}
+      </span>
+      <p style="color:var(--text);font-size:0.88em;font-weight:700;margin:10px 0;line-height:1.5">${q.question}</p>
+      ${hasTimer ? `
+        <div class="gk-timer ok" id="gk-timer">${timerSecs.toFixed(1)}s</div>
+        <div class="timer-bar"><div class="timer-bar-fill" id="gk-bar"></div></div>
+      ` : ''}
+      <div class="gk-answers" id="gk-answers">
+        ${q.answers.map((a, i) => `<button class="gk-ans-btn" onclick="answerGK(${i})" id="gk-btn-${i}">${a}</button>`).join('')}
+      </div>
+      <p style="color:var(--accent);font-size:0.65em;margin-top:8px">Correct: +$${reward} | Wrong: -$${penalty}</p>
+      <p style="color:var(--faint);font-size:0.58em">Balance: $${fmt(G.money)}</p>
+    </div>
+    <div class="msg-box msg-info" id="msg">${hasTimer ? '⏰ Timer is on! Answer quickly!' : 'Take your time... for now.'}</div>
+  `;
+
+            if (hasTimer) {
+                let timeLeft = timerSecs * 1000;
+                G.gkTimerInt = setInterval(() => {
+                    if (window._gkAnswered || G.screen !== 'gkQuestion') { clearInterval(G.gkTimerInt); return; }
+                    timeLeft -= 100;
+                    const el = document.getElementById('gk-timer');
+                    const bar = document.getElementById('gk-bar');
+                    if (el) {
+                        el.textContent = (timeLeft / 1000).toFixed(1) + 's';
+                        el.className = 'gk-timer ' + (timeLeft <= 3000 ? 'urgent' : 'ok');
+                    }
+                    if (bar) bar.style.width = (timeLeft / (timerSecs * 1000) * 100) + '%';
+                    if (timeLeft <= 0) {
+                        clearInterval(G.gkTimerInt);
+                        window._gkAnswered = true;
+                        setMsg('⏰ Time\'s up! Wrong answer!', 'danger');
+                        G.money -= penalty;
+                        floatNum(penalty, true);
+                        shake();
+                        disableGKButtons(-1);
+                        if (checkNegative()) return;
+                        setTimeout(() => renderGame(), 1500);
+                    }
+                }, 100);
+            }
+        }
+
+        function getLocalFallbackQuestions(diff) {
+            const all = {
+                easy: [
+                    { question: "What is the capital of Japan?", correct: "Tokyo", answers: ["Beijing", "Tokyo", "Seoul", "Bangkok"], category: "Geography" },
+                    { question: "How many sides does a hexagon have?", correct: "6", answers: ["5", "6", "7", "8"], category: "Math" },
+                    { question: "What color is a ruby?", correct: "Red", answers: ["Blue", "Green", "Red", "Yellow"], category: "General" },
+                ],
+                medium: [
+                    { question: "Who wrote '1984'?", correct: "George Orwell", answers: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "H.G. Wells"], category: "Literature" },
+                    { question: "What is the chemical formula for table salt?", correct: "NaCl", answers: ["NaCl", "KCl", "CaCl2", "MgCl2"], category: "Chemistry" },
+                ],
+                hard: [
+                    { question: "What year was the Berlin Wall built?", correct: "1961", answers: ["1955", "1961", "1968", "1972"], category: "History" },
+                    { question: "Which element has atomic number 79?", correct: "Gold", answers: ["Silver", "Gold", "Platinum", "Mercury"], category: "Chemistry" },
+                ]
+            };
+            return all[diff] || all.easy;
+        }
+
+        function answerGK(idx) {
+            if (window._gkAnswered) return;
+            window._gkAnswered = true;
+            clearT();
+
+            const q = window._currentGK;
+            const selected = q.answers[idx];
+            const correct = selected === q.correct;
+            const correctIdx = q.answers.indexOf(q.correct);
+
+            disableGKButtons(idx, correctIdx, correct);
+
+            if (correct) {
+                G.gkLevel++;
+                G.money += window._gkReward;
+                floatNum(window._gkReward, false);
+                G.peakMoney = Math.max(G.peakMoney, G.money);
+                saveHS();
+
+                setMsg(`✅ Correct! +$${fmt(window._gkReward)}!`, 'good');
+
+                // Double or nothing option
+                setTimeout(() => {
+                    const btnsArea = document.getElementById('gk-answers');
+                    if (btnsArea) {
+                        btnsArea.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center">
+            <p style="color:var(--gold);font-size:0.85em;font-weight:700;margin-bottom:8px">🎰 Double or Nothing?</p>
+            <p style="color:var(--muted);font-size:0.65em;margin-bottom:10px">Risk $${fmt(window._gkReward)} for double!</p>
+            <div class="btn-group">
+              <button class="btn btn-main btn-sm" onclick="gkDoubleOrNothing(${window._gkReward})">🎲 Double!</button>
+              <button class="btn btn-cashout btn-sm" onclick="proceedFromGK()">✅ Keep it</button>
+            </div>
+          </div>
+        `;
+                    }
+                }, 1000);
+            } else {
+                G.money -= window._gkPenalty;
+                floatNum(window._gkPenalty, true);
+                shake();
+                setMsg(`❌ Wrong! Answer: ${q.correct}. -$${fmt(window._gkPenalty)}`, 'danger');
+                if (checkNegative()) return;
+                if (G.money <= 0) G.money = 1;
+                setTimeout(() => renderGame(), 2000);
+            }
+        }
+
+        function gkDoubleOrNothing(amount) {
+            if (chance(50)) {
+                G.money += amount;
+                floatNum(amount, false);
+                setMsg(`🎰 DOUBLED! +$${fmt(amount)}!`, 'good');
+                showMilestone('DOUBLED! 🎰');
+            } else {
+                G.money -= amount;
+                floatNum(amount, true);
+                setMsg(`💀 Lost! -$${fmt(amount)}`, 'danger');
+                shake();
+            }
+            G.peakMoney = Math.max(G.peakMoney, G.money);
+            saveHS();
+            if (checkNegative()) return;
+            if (G.money <= 0) G.money = 1;
+            setTimeout(() => renderGame(), 1200);
+        }
+
+        function proceedFromGK() {
+            G.questionAnswered = true;
+            renderGame();
+        }
+
+        function disableGKButtons(selectedIdx, correctIdx = -1, wasCorrect = false) {
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`gk-btn-${i}`);
+                if (!btn) continue;
+                btn.classList.add('disabled');
+                if (i === correctIdx || (i === selectedIdx && wasCorrect)) {
+                    btn.classList.add('correct');
+                } else if (i === selectedIdx && !wasCorrect) {
+                    btn.classList.add('wrong');
+                }
+            }
+        }
+
+        // ===== SPECIAL LEVEL MANAGEMENT =====
+        function shouldShowSpecialLevel() {
+            // Insert special levels at certain money thresholds or level transitions
+            const triggers = [500, 2000, 8000, 30000, 100000, 400000];
+            for (const t of triggers) {
+                if (G.money >= t && !G.milestonesHit['special_' + t]) {
+                    G.milestonesHit['special_' + t] = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getNextSpecialLevel() {
+            const idx = G.specialLevelIdx % SPECIAL_LEVEL_TYPES.length;
+            G.specialLevelIdx++;
+            return SPECIAL_LEVEL_TYPES[idx];
+        }
+
+        function showSpecialLevel() {
+            const type = getNextSpecialLevel();
+            switch (type) {
+                case 'graphPredict': showGraphLevel(); break;
+                case 'personalQ': showPersonalQuestion(); break;
+                case 'bitcoinInvest': showBitcoinInvestment(); break;
+                default: showGraphLevel();
+            }
+        }
+
+        // ===== BITCOIN INVESTMENT LEVEL =====
+        function showBitcoinInvestment() {
+            G.screen = 'bitcoinInvest';
+            clearT();
+
+            const opportunities = [
+                {
+                    name: "🪙 Bitcoin Flash Dip",
+                    desc: "BTC dropped 12% in 2 hours. \"Buy the dip\" says everyone on Twitter.",
+                    investLabel: "🤑 Buy the Dip!",
+                    skipLabel: "🚫 Not Falling For It",
+                    backfireChance: 0.67,
+                    winMult: 2.5, loseMult: 0.3,
+                    winMsg: "📈 BTC recovered! Your investment 2.5x'd! You're basically Warren Buffett!",
+                    loseMsg: "📉 BTC kept dropping. Lost 70%. The dip keeps dipping... into the abyss.",
+                    skipMsg: "Smart. BTC dropped another 30% after this.",
+                },
+                {
+                    name: "🐕 MemeCoin Launch: $GREED",
+                    desc: "New memecoin launched 4 minutes ago. Already up 400%. 'Still early bro.'",
+                    investLabel: "🚀 APE IN!",
+                    skipLabel: "🧠 I Have a Brain",
+                    backfireChance: 0.67,
+                    winMult: 5.0, loseMult: 0.1,
+                    winMsg: "🚀 $GREED actually mooned! 5x return! (this literally never happens IRL)",
+                    loseMsg: "🔻 Rug pulled. Dev wallet drained. Your $GREED is worth $0. Classic.",
+                    skipMsg: "Good call. It rugged 6 minutes later.",
+                },
+                {
+                    name: "🎰 50x Leverage Long on ETH",
+                    desc: "ETH at $3,200. You FEEL it going up. 50x leverage available.",
+                    investLabel: "📈 YOLO 50x Long!",
+                    skipLabel: "😅 No Thanks",
+                    backfireChance: 0.67,
+                    winMult: 4.0, loseMult: 0.05,
+                    winMsg: "📈 ETH pumped 3%! With 50x leverage that's 4x gains! DIAMOND HANDS!",
+                    loseMsg: "💀 Liquidated in 47 seconds. Lost 95%. Shoulda used a stop-loss. LOL jk those don't work either.",
+                    skipMsg: "ETH actually pumped... but the volatility would've liquidated you anyway.",
+                },
+                {
+                    name: "🖼️ NFT Floor Sweep",
+                    desc: "Bored Ape knockoff 'Bored Beavers' floor is dropping. Buy the fear?",
+                    investLabel: "🎨 Sweep the Floor!",
+                    skipLabel: "🗑️ NFTs are Dead",
+                    backfireChance: 0.67,
+                    winMult: 3.0, loseMult: 0.15,
+                    winMsg: "🎨 Snoop Dogg tweeted about Bored Beavers! 3x flip! You're an art collector now!",
+                    loseMsg: "💩 Collection delisted from OpenSea. Your beaver JPEG is now a $0 JPEG.",
+                    skipMsg: "The collection got delisted anyway. You saved your money.",
+                },
+                {
+                    name: "🏦 DeFi Farming: 2000% APY",
+                    desc: "New DeFi protocol on Solana. 'Audited by our intern.' 2000% APY.",
+                    investLabel: "🌾 Stake Everything!",
+                    skipLabel: "🔒 My Money Stays Here",
+                    backfireChance: 0.67,
+                    winMult: 2.5, loseMult: 0.1,
+                    winMsg: "🌾 Protocol actually survived! Your yield farming paid off! (1 in 100 chance)",
+                    loseMsg: "🐛 Smart contract exploit. All funds drained. The intern did NOT audit well.",
+                    skipMsg: "Smart. The protocol got exploited 3 days later.",
+                },
+                {
+                    name: "🔮 Crypto Guru's Hot Tip",
+                    desc: "'CryptoKing_420' on YouTube says SOL will 10x by Friday. 2M subscribers can't be wrong.",
+                    investLabel: "💎 Trust the Guru!",
+                    skipLabel: "🤡 He's a Clown",
+                    backfireChance: 0.67,
+                    winMult: 3.0, loseMult: 0.2,
+                    winMsg: "😱 CryptoKing was RIGHT?! SOL pumped! 3x gains! Subscribe and hit the bell!",
+                    loseMsg: "📉 SOL dumped 40%. CryptoKing deleted his video. He sold at the top. Obviously.",
+                    skipMsg: "CryptoKing posted a 'sorry guys' video from his Lambo. Smart to skip.",
+                },
+            ];
+
+            const opp = pick(opportunities);
+            window._currentBitcoinOpp = opp;
+            const investAmount = Math.max(50, Math.floor(G.money * 0.4));
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--warning)">₿ CRYPTO OPPORTUNITY</h1>
+    <div class="card glow-gold">
+      <p style="color:var(--gold);font-size:1em;font-weight:700;margin-bottom:8px">${opp.name}</p>
+      <p style="color:var(--muted);font-size:0.82em;line-height:1.6;margin-bottom:10px">${opp.desc}</p>
+      <p style="color:var(--warning);font-size:0.78em;font-weight:700">Investment: $${fmt(investAmount)} (40% of your money)</p>
+      <p style="color:var(--faint);font-size:0.65em;margin:6px 0">Current balance: $${fmt(G.money)}</p>
+      <p style="color:var(--danger);font-size:0.6em;font-style:italic;margin:6px 0">⚠️ 67% of crypto investments fail.</p>
+      <div class="btn-group" style="margin-top:14px">
+        <button class="btn btn-main" onclick="doBitcoinInvest(true)" style="font-size:0.9em">${opp.investLabel}</button>
+        <button class="btn btn-cashout btn-sm" onclick="doBitcoinInvest(false)">${opp.skipLabel}</button>
+      </div>
+    </div>
+    <div class="msg-box msg-warn" id="msg">🧐 Do you feel lucky? (Spoiler: you probably shouldn't)</div>
+  `;
+        }
+
+        function doBitcoinInvest(invest) {
+            const opp = window._currentBitcoinOpp;
+            if (!opp) { proceedFromSpecial(); return; }
+
+            const investAmount = Math.max(50, Math.floor(G.money * 0.4));
+
+            if (!invest) {
+                setMsg(`${opp.skipMsg} 😎`, 'good');
+                G.money += Math.floor(investAmount * 0.05); // small bonus for being smart
+                floatNum(Math.floor(investAmount * 0.05), false);
+                app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--accent)">₿ SKIPPED</h1>
+    <div class="card glow-green">
+      <p style="color:var(--accent);font-size:0.9em;font-weight:700;margin-bottom:8px">You didn't invest.</p>
+      <p style="color:var(--muted);font-size:0.78em;line-height:1.5">${opp.skipMsg}</p>
+      <p style="color:var(--accent);font-size:0.72em;margin-top:8px">+$${fmt(Math.floor(investAmount * 0.05))} wisdom bonus</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">➡️ Continue</button>
+    <div class="msg-box msg-good" id="msg">Financial responsibility is boring but effective.</div>
+  `;
+                return;
+            }
+
+            // Investing - 67% backfire rate
+            const backfires = Math.random() < opp.backfireChance;
+
+            // Show "processing" animation first
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--warning)">₿ PROCESSING...</h1>
+    <div class="card">
+      <div class="verification-spinner"></div>
+      <p style="color:var(--muted);font-size:0.78em;margin-top:10px">${opp.investLabel.replace(/[^\w\s]/g, '')}... Checking markets...</p>
+      <p style="color:var(--warning);font-size:2em;margin:10px 0">⏳</p>
+    </div>
+  `;
+
+            setTimeout(() => {
+                if (backfires) {
+                    const loss = Math.floor(investAmount * (1 - opp.loseMult));
+                    G.money -= loss;
+                    floatNum(loss, true);
+                    shake();
+
+                    app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--danger)">₿ REKT 💀</h1>
+    <div class="card glow-red">
+      <div class="money-display crash-anim" style="color:var(--danger);font-size:1.8em">-$${fmt(loss)}</div>
+      <p style="color:var(--danger);font-size:0.85em;font-weight:700;margin:8px 0">${opp.loseMsg}</p>
+      <p style="color:var(--muted);font-size:0.72em">Balance: $${fmt(G.money)}</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">😔 Continue</button>
+    <div class="msg-box msg-danger" id="msg">"Not your keys, not your money." — Some guy, 2017</div>
+  `;
+                } else {
+                    const gain = Math.floor(investAmount * (opp.winMult - 1));
+                    G.money += gain;
+                    floatNum(gain, false);
+                    showMilestone('CRYPTO WIN! 🚀');
+
+                    app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--accent)">₿ TO THE MOON! 🚀</h1>
+    <div class="card glow-green">
+      <div class="money-display win-anim" style="color:var(--accent);font-size:1.8em">+$${fmt(gain)}</div>
+      <p style="color:var(--accent);font-size:0.85em;font-weight:700;margin:8px 0">${opp.winMsg}</p>
+      <p style="color:var(--muted);font-size:0.72em">Balance: $${fmt(G.money)}</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">🎉 Continue</button>
+    <div class="msg-box msg-good" id="msg">Don't get used to winning. The market remembers.</div>
+  `;
+                }
+                G.peakMoney = Math.max(G.peakMoney, G.money);
+                saveHS();
+                if (checkNegative()) return;
+            }, 2000);
+        }
+
+        // ===== DOOM LEVEL (near $1M, 37% success rate) =====
+        function showDoomLevel() {
+            G.screen = 'doomLevel';
+            G.doomLevelShown = true;
+            clearT();
+
+            const doomTypes = [
+                {
+                    name: "⚡ THE WIRE",
+                    desc: "Cut the right wire. Red or Blue. One saves your money, one takes 80%.",
+                    options: ["✂️ Cut RED", "✂️ Cut BLUE"],
+                    successRate: 0.37,
+                    winMsg: "💣 DEFUSED! You cut the right wire! Your money is safe!",
+                    loseMsg: "💥 BOOM! Wrong wire! Lost 80% of your fortune!",
+                    losePct: 0.8,
+                },
+                {
+                    name: "🎰 DEVIL'S ROULETTE",
+                    desc: "The wheel has 19 slots. Only 7 are green. Spin to survive.",
+                    options: ["🎰 Spin the Wheel"],
+                    successRate: 0.37,
+                    winMsg: "🟢 GREEN! The devil spares you! Full balance kept!",
+                    loseMsg: "🔴 RED! The devil takes his cut! Lost 80%!",
+                    losePct: 0.8,
+                },
+                {
+                    name: "🃏 FATE'S CARD",
+                    desc: "Pick a card from the deck. Need a face card or ace to survive. 37% odds.",
+                    options: ["🃏 Draw a Card"],
+                    successRate: 0.37,
+                    winMsg: "👑 KING! Fate smiles upon you! Balance saved!",
+                    loseMsg: "🃏 7 of Clubs. Boring. And devastating. Lost 80%!",
+                    losePct: 0.8,
+                },
+                {
+                    name: "🎲 LOADED DICE",
+                    desc: "Roll two dice. Need doubles to survive. The dice feel... wrong.",
+                    options: ["🎲 Roll the Dice"],
+                    successRate: 0.37,
+                    winMsg: "🎲 DOUBLE SIXES! Against all odds! Money saved!",
+                    loseMsg: "🎲 3 and 5. Not even close. Lost 80% of everything.",
+                    losePct: 0.8,
+                },
+            ];
+
+            const doom = pick(doomTypes);
+            window._currentDoom = doom;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.4em, 5vw, 1.8em);color:var(--danger);text-shadow:0 0 30px var(--danger)">⚠️ DOOM LEVEL</h1>
+    <div class="card glow-red" style="border-width:2px">
+      <p style="color:var(--danger);font-size:0.72em;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">— MANDATORY CHALLENGE —</p>
+      <p style="color:var(--gold);font-size:1.2em;font-weight:700;margin:10px 0">${doom.name}</p>
+      <p style="color:var(--muted);font-size:0.82em;line-height:1.6;margin-bottom:12px">${doom.desc}</p>
+      <div class="money-display" style="font-size:1.6em">$${fmt(G.money)}</div>
+      <p style="color:var(--danger);font-size:0.72em;font-weight:700;margin:8px 0">Success rate: 37% | Failure: lose 80%</p>
+      <p style="color:var(--faint);font-size:0.6em;font-style:italic">You cannot skip this. So close to $1M... yet so far.</p>
+      <div class="btn-group" style="margin-top:16px">
+        ${doom.options.map(o => `<button class="btn btn-danger" onclick="resolveDoom()" style="font-size:1em;padding:14px 28px">${o}</button>`).join('')}
+      </div>
+    </div>
+    <div class="msg-box msg-danger" id="msg">The game doesn't want you to win. Prove it wrong.</div>
+  `;
+        }
+
+        function resolveDoom() {
+            const doom = window._currentDoom;
+            if (!doom) { proceedFromSpecial(); return; }
+
+            const success = Math.random() < doom.successRate;
+
+            // Dramatic pause
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.4em, 5vw, 1.8em);color:var(--warning)">⏳ ...</h1>
+    <div class="card">
+      <div class="verification-spinner"></div>
+      <p style="color:var(--warning);font-size:1.5em;margin:20px 0">🎲</p>
+      <p style="color:var(--muted);font-size:0.78em">Determining your fate...</p>
+    </div>
+  `;
+
+            setTimeout(() => {
+                if (success) {
+                    showMilestone('SURVIVED! ⚡');
+                    setMsg(doom.winMsg, 'good');
+                    app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.4em, 5vw, 1.8em);color:var(--accent)">✅ SURVIVED!</h1>
+    <div class="card glow-green">
+      <div class="money-display win-anim" style="color:var(--accent)">$${fmt(G.money)}</div>
+      <p style="color:var(--accent);font-size:0.9em;font-weight:700;margin:10px 0">${doom.winMsg}</p>
+      <p style="color:var(--muted);font-size:0.72em">The path to $1M continues...</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">🎉 Continue!</button>
+    <div class="msg-box msg-good" id="msg">37% chance and you made it. Legendary.</div>
+  `;
+                } else {
+                    const loss = Math.floor(G.money * doom.losePct);
+                    G.money -= loss;
+                    floatNum(loss, true);
+                    shake();
+                    app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.4em, 5vw, 1.8em);color:var(--danger);text-shadow:0 0 30px var(--danger)">💀 DOOMED</h1>
+    <div class="card glow-red">
+      <div class="money-display crash-anim" style="color:var(--danger)">-$${fmt(loss)}</div>
+      <p style="color:var(--danger);font-size:0.9em;font-weight:700;margin:10px 0">${doom.loseMsg}</p>
+      <p style="color:var(--muted);font-size:0.72em">Balance: $${fmt(G.money)}</p>
+    </div>
+    <button class="btn btn-main" onclick="proceedFromSpecial()" style="margin-top:12px">😭 Continue...</button>
+    <div class="msg-box msg-danger" id="msg">You were SO close to $1M. The game always wins.</div>
+  `;
+                    G.peakMoney = Math.max(G.peakMoney, G.money);
+                    saveHS();
+                    if (checkNegative()) return;
+                }
+            }, 2500);
+        }
+
+        function proceedFromSpecial() {
+            G.screen = 'game';
+            G.specialState = null;
+            renderGame();
+        }
+
+        // ===== TUTORIAL =====
+        let tutPage = 0;
+        const TUT_PAGES = [
+            {
+                title: "Welcome! 👋",
+                steps: [
+                    { i: "💰", t: "Start with <strong>$1</strong>. Goal: reach <strong class='hl-gold'>$1,000,000</strong>." },
+                    { i: "🎲", t: "Each tap, your money <strong>doubles</strong> — but you might <strong class='hl-red'>lose it all</strong>." },
+                    { i: "🧠", t: "It's <strong>greed vs caution</strong>. Simple as that!" },
+                ]
+            },
+            {
+                title: "How It Works",
+                steps: [
+                    { i: "🟡", t: "Tap <strong class='hl-gold'>\"Double It\"</strong> to gamble. Win = money doubles!" },
+                    { i: "✅", t: "Tap <strong>\"Cash Out\"</strong> to save your money safely." },
+                    { i: "💥", t: "If you <strong class='hl-red'>crash</strong>, you lose everything and restart at $1." },
+                ]
+            },
+            {
+                title: "Special Levels 🎭",
+                steps: [
+                    { i: "📈", t: "<strong>Graph Predictions</strong> — guess if the market goes up or down!" },
+                    { i: "❓", t: "<strong>GK Questions</strong> — answer correctly for bonus cash!" },
+                    { i: "🎭", t: "<strong>Personal Questions</strong> — your answers have... consequences. 😈" },
+                ]
+            }
+        ];
+
+        function showTut(p = 0) {
+            tutPage = p;
+            const page = TUT_PAGES[p];
+            const last = p >= TUT_PAGES.length - 1;
+            const el = document.getElementById('tut-overlay');
+            if (el) el.remove();
+
+            const ov = document.createElement('div');
+            ov.className = 'tut-overlay';
+            ov.id = 'tut-overlay';
+            ov.innerHTML = `
+    <div class="tut-card">
+      <h2>${page.title}</h2>
+      ${page.steps.map(s => `
+        <div class="tut-step">
+          <div class="t-icon">${s.i}</div>
+          <div class="t-text">${s.t}</div>
+        </div>
+      `).join('')}
+      <div class="tut-dots">
+        ${TUT_PAGES.map((_, i) => `<div class="tut-dot ${i === p ? 'active' : ''}"></div>`).join('')}
+      </div>
+      <div class="btn-group">
+        ${p > 0 ? `<button class="btn btn-sm" onclick="showTut(${p - 1})">← Back</button>` : ''}
+        <button class="btn btn-main" onclick="${last ? 'closeTut()' : `showTut(${p + 1})`}" style="font-size:1em">
+          ${last ? "Let's Play! 🎮" : 'Next →'}
+        </button>
+      </div>
+      ${!last ? `<p style="color:var(--faint);font-size:0.6em;margin-top:8px;cursor:pointer" onclick="closeTut()">Skip →</p>` : ''}
+    </div>
+  `;
+            document.body.appendChild(ov);
+        }
+
+        function closeTut() {
+            const el = document.getElementById('tut-overlay');
+            if (el) el.remove();
+            try { localStorage.setItem('gt_tut', '1'); } catch { }
+            // User is already logged in (handled at welcome screen)
+            startGame();
+        }
+
+        // ===== WELCOME =====
+        function showWelcome() {
+            G.screen = 'welcome';
+            G.gameActive = false;
+            document.body.className = '';
+            clearAll();
+            loadHS();
+            loadSession();
+
+            const s = getStats();
+            const tutDone = localStorage.getItem('gt_tut') === '1';
+
+            // If not logged in, show auth screen directly on welcome
+            if (!G.loggedIn) {
+                showAuthScreen(showWelcome);
+                return;
+            }
+
+            app.innerHTML = `
+    <h1 class="title">The Greed Trial</h1>
+    <p class="subtitle">How far will you go?</p>
+
+    <div class="card" style="padding:12px">
+      <p style="font-size:0.78em;color:var(--accent)">
+        ${G.userEmoji} <strong>${G.username}</strong>
+        <span style="color:var(--faint);font-size:0.8em;margin-left:6px">logged in</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <p style="color:#999;font-size:0.82em;line-height:1.8">
+        Start with <span style="color:var(--accent);font-weight:700">$1</span>.
+        <span style="color:var(--gold);font-weight:700">Double it</span> each round.
+        <span style="color:var(--danger);font-weight:700">Don't crash.</span>
+        <br>Reach <span style="color:var(--gold);font-weight:700">$1,000,000</span> to win.
+      </p>
+    </div>
+
+    ${G.highScore > 0 ? `
+      <div class="card glow-gold" style="padding:14px">
+        <p style="font-size:0.72em;color:var(--muted)">🏆 Your Best: <span style="color:var(--gold);font-weight:800">$${fmt(G.highScore)}</span></p>
+      </div>
+    ` : ''}
+
+    <div class="btn-group">
+      <button class="btn btn-main" onclick="handlePlay()" style="min-width:200px">
+        🎮 ${tutDone ? 'Play' : 'Start'}
+      </button>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-sm" onclick="doLogout()">🚪 Logout</button>
+      <button class="btn btn-sm" onclick="showTut(0)">📖 How to Play</button>
+      <button class="btn btn-sm" onclick="showLB()">🏆 Scores</button>
+    </div>
+
+    <p class="faint" style="margin-top:8px">Total failures worldwide: ${(12394201 + (s.crashes || 0) * 47).toLocaleString()}</p>
+  `;
+        }
+
+        function handlePlay() {
+            const tutDone = localStorage.getItem('gt_tut') === '1';
+            if (!tutDone) {
+                showTut(0);
+                return;
+            }
+            startGame();
+        }
+
+        function doLogout() {
+            G.session = null;
+            G.username = null;
+            G.userEmoji = '😎';
+            G.loggedIn = false;
+            try { localStorage.removeItem('gt_session'); } catch { }
+            showWelcome();
+        }
+
+        async function showLB() {
+            G.screen = 'lb';
+
+            let serverScores = [];
+            try {
+                const data = await apiGet('/api/leaderboard');
+                if (data.leaderboard) serverScores = data.leaderboard;
+            } catch { }
+
+            const all = [...FAKE_LB.map(e => ({ username: e.name, emoji: e.emoji, score: e.amount })), ...serverScores]
+                .sort((a, b) => (b.score || b.amount || 0) - (a.score || a.amount || 0))
+                .slice(0, 15);
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:1.4em">🏆 Scores</h1>
+    <div class="card">
+      <table class="lb-table">
+        <tr><th>#</th><th>Player</th><th>Amount</th></tr>
+        ${all.map((e, i) => `<tr><td>${i + 1}</td><td>${e.emoji || '😎'} ${e.username || e.name}</td><td>$${fmt(e.score || e.amount)}</td></tr>`).join('')}
+      </table>
+    </div>
+    <button class="btn btn-sm" onclick="showWelcome()">← Back</button>
+  `;
+        }
+
+        // ===== GAME INIT =====
+        async function startGame() {
+            if (G.loggedIn && G.session) { await apiPost('/api/action', { session: G.session, action: 'start' }); }
+            G.money = 1; G.level = 1; G.crashes = 0; G.totalClicks = 0;
+            G.cashouts = 0; G.peakMoney = 1; G.streak = 0; G.maxStreak = 0;
+            G.debt = 0; G.hasDebt = false; G.greedRating = 0;
+            G.startTime = Date.now(); G.currentMult = 2;
+            G.roundClicks = 0; G.totalRounds = 0; G.resistCount = 0;
+            G.rageEvents = 0; G.inputDelay = false; G.specialState = null;
+            G.reverseActive = false; G.nearMiss = false;
+            G.milestonesHit = {}; G.firstFeats = {};
+            G.gameActive = true; G.kicked = false;
+            G.pattern = []; G.patternPos = 0;
+            G.patternSeq = generatePattern(1);
+            G.questionAnswered = false;
+            G.lastMsg = '';
+            G.gkLevel = 0;
+            G.gkTimerEnabled = false;
+            G.personalAsked = {};
+            G.specialLevelIdx = 0;
+            G.authDoneInGame = false;
+            G.doubleOrNothingActive = false;
+            G.doomLevelShown = false;
+            G.lastClickTime = 0;
+            G.clickCooldownPenalties = 0;
+            G.spamWarned = false;
+
+            loadAch(); loadHS(); startRage();
+            showLevel(1);
+        }
+
+        function levelFor() {
+            if (G.money >= 900000) return 20;
+            if (G.money >= 700000) return Math.max(G.level, rand(17, 19));
+            if (G.money >= 400000) return Math.max(G.level, rand(14, 16));
+            if (G.money >= 200000) return Math.max(G.level, rand(11, 13));
+            if (G.money >= 50000) return Math.max(G.level, rand(8, 10));
+            if (G.money >= 10000) return Math.max(G.level, rand(5, 7));
+            if (G.money >= 1000) return Math.max(G.level, rand(3, 4));
+            if (G.money >= 100) return Math.max(G.level, 2);
+            return Math.max(G.level, 1);
+        }
+
+        function showLevel(lvl) {
+            G.level = Math.min(lvl, 20);
+            G.screen = 'game';
+            G.specialState = null;
+            G.reverseActive = false;
+            G.questionAnswered = false;
+            G.doubleOrNothingActive = false;
+            clearT();
+
+            G.patternSeq = generatePattern(G.level);
+            G.patternPos = 0;
+
+            const cfg = LEVEL_CONFIG[G.level] || LEVEL_CONFIG[20];
+
+            // Check if we should show a special level
+            if (shouldShowSpecialLevel()) {
+                showSpecialLevel();
+                return;
+            }
+
+            // Show tips for new features
+            for (const f of cfg.features) {
+                if (isFirst(f)) {
+                    const tip = getTip(f);
+                    if (tip) G.lastMsg = tip;
+                }
+            }
+
+            // Special pre-screens
+            if (cfg.features.includes('gkQuestion') && !G.questionAnswered) {
+                showGKQuestion();
+                return;
+            }
+            if (cfg.features.includes('memoryCode') && G.specialState !== 'passed') {
+                showMemory();
+                return;
+            }
+            if (cfg.features.includes('patience') && G.specialState !== 'passed') {
+                showPatience();
+                return;
+            }
+            if (cfg.features.includes('reactionFlash') && G.specialState !== 'passed') {
+                showReaction();
+                return;
+            }
+            if (cfg.features.includes('reverseLogic')) G.reverseActive = true;
+            if (cfg.features.includes('finalIllusion') && G.money >= 900000 && G.specialState !== 'passed') {
+                showFinal();
+                return;
+            }
+
+            renderGame();
+        }
+
+        // ===== MAIN GAME SCREEN =====
+        function renderGame() {
+            G.screen = 'game';
+            const cfg = LEVEL_CONFIG[G.level] || LEVEL_CONFIG[20];
+            const progress = Math.min((G.money / TARGET) * 100, 100);
+            const logProgress = G.money > 0 ? Math.min((Math.log10(G.money) / Math.log10(TARGET)) * 100, 100) : 0;
+            const displayProgress = Math.max(progress, logProgress * 0.7 + progress * 0.3);
+            const phase = cfg.phase;
+            const phaseClass = `phase${phase}`;
+
+            let extras = '';
+            if (cfg.features.includes('egoBoost')) extras += `<p style="color:var(--accent);font-size:0.72em;margin:4px 0">📊 Top ${100 - rand(65, 95)}% of players</p>`;
+            if (cfg.features.includes('confidenceTrap') && G.money < TARGET * 0.3) extras += `<p style="color:var(--warning);font-size:0.68em;margin:4px 0">💬 "Most winners don't stop this early..."</p>`;
+
+            let crashDisp = '';
+            if (cfg.features.includes('showCrash')) {
+                crashDisp = `<p class="crash-chance">Crash risk: <span>${getCrashDisplay()}%</span></p>`;
+            }
+
+            let multBtns = '';
+            if (cfg.features.includes('multipliers')) {
+                multBtns = `
+      <div class="mult-section">
+        <p class="mult-label">Pick multiplier:</p>
+        <div class="btn-group">
+          <button class="btn mult-btn ${G.currentMult === 2 ? 'selected' : ''}" onclick="setMult(2)">x2</button>
+          <button class="btn mult-btn ${G.currentMult === 3 ? 'selected' : ''}" onclick="setMult(3)">x3 ⚡</button>
+          <button class="btn mult-btn btn-danger ${G.currentMult === 10 ? 'selected' : ''}" onclick="setMult(10)">x10 ☠️</button>
+        </div>
+      </div>
+    `;
+            }
+
+            let revHint = G.reverseActive ? `<div class="reverse-hint">⚠️ REVERSED: 🔴 Red = SAFE · 🟢 Green = CRASH</div>` : '';
+            let debtDisp = G.hasDebt && G.debt > 0 ? `<p class="debt-indicator">💀 Debt: $${fmt(Math.floor(G.debt))}</p>` : '';
+            let timerH = cfg.features.includes('timer') ? `<div class="timer-bar"><div class="timer-bar-fill" id="timer-fill"></div></div><p style="font-size:0.6em;color:var(--danger)" id="timer-text">3.0s</p>` : '';
+            let safeBtn = cfg.features.includes('fakeSafety') ? `<button class="btn btn-cashout btn-sm" onclick="fakeSafe()">🛡️ Safe Cash Out</button>` : '';
+            let loanBtn = cfg.features.includes('loans') && G.money <= 1 ? `<button class="btn btn-danger btn-sm" onclick="takeLoan()">💰 Borrow $1,000</button>` : '';
+            let fakeLBH = '';
+            if (cfg.features.includes('fakeLB')) {
+                fakeLBH = `<div class="card" style="padding:10px;margin-top:6px"><p style="font-size:0.55em;color:var(--faint);margin-bottom:4px">LIVE SCORES</p><table class="lb-table">${FAKE_LB.slice(0, 3).map((e, i) => `<tr><td>${i + 1}</td><td>${e.emoji} ${e.name}</td><td>$${fmt(e.amount)}</td></tr>`).join('')}</table></div>`;
+            }
+
+            let streakH = '';
+            if (G.streak >= 3) {
+                const cls = G.streak >= 7 ? 'fire' : 'hot';
+                const fl = G.streak >= 7 ? '🔥🔥🔥' : G.streak >= 5 ? '🔥🔥' : '🔥';
+                streakH = `<span class="streak-pill ${cls}">${fl} ${G.streak} streak!</span>`;
+            }
+
+            let nmH = G.nearMiss ? `<p class="near-miss">⚡ CLOSE CALL!</p>` : '';
+            G.nearMiss = false;
+
+            let tipH = '';
+            if (G.lastMsg && G.lastMsg.startsWith('💡')) {
+                tipH = `<div class="quick-tip">${G.lastMsg}</div>`;
+                G.lastMsg = '';
+            }
+
+            let dblH = '';
+            if (G.money > 0 && G.money < TARGET) {
+                const d = Math.ceil(Math.log2(TARGET / G.money));
+                dblH = `<p class="doubles-hint">${d} double${d > 1 ? 's' : ''} to $1M</p>`;
+            }
+
+            const patHint = getPatternHint();
+            let patH = patHint ? `<p style="font-size:0.65em;color:var(--muted);margin:3px 0">${patHint}</p>` : '';
+
+            let patVis = '';
+            if (G.level >= 3 && G.pattern.length > 0) {
+                const last5 = G.pattern.slice(-6);
+                patVis = `<div class="pattern-row">${last5.map(p => `<div class="pattern-dot ${p ? 'win' : 'lose'}">${p ? 'W' : 'L'}</div>`).join('')}<div class="pattern-dot next">?</div></div>`;
+            }
+
+            // User info
+            let userH = G.loggedIn ? `<p style="font-size:0.58em;color:var(--faint);margin-bottom:4px">${G.userEmoji} ${G.username}</p>` : '';
+
+            const defMsg = G.totalClicks === 0 ? 'Tap "Double It" to start! 🍀' : G.lastMsg || 'Double or cash out?';
+
+            app.innerHTML = `
+    ${userH}
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">The Greed Trial</h1>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="label">Level</div>
+        <div class="value">${G.level}/20</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Crashes</div>
+        <div class="value" style="color:var(--danger)">${G.crashes}</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Best</div>
+        <div class="value" style="color:var(--gold)">$${fmt(Math.max(G.peakMoney, G.highScore))}</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Streak</div>
+        <div class="value" style="color:${G.streak > 0 ? 'var(--gold)' : G.streak < 0 ? 'var(--danger)' : 'var(--muted)'}">${G.streak > 0 ? '+' : ''}${G.streak}</div>
+      </div>
+    </div>
+
+    <div class="card ${G.streak >= 5 ? 'glow-gold' : ''}">
+      <span class="level-badge ${phaseClass}">Lv.${G.level} · ${cfg.name}</span>
+      <p class="level-desc">${cfg.desc}</p>
+
+      ${tipH}
+      ${revHint}
+
+      <div class="money-display" id="money-disp">$${fmt(G.money)}</div>
+
+      ${streakH}
+      ${nmH}
+      ${debtDisp}
+
+      <div class="progress-section">
+        <div class="target-bar">
+          <div class="target-bar-fill" id="progress-fill" style="width:${displayProgress}%"></div>
+        </div>
+        <div class="target-labels">
+          <span class="current">$${fmt(G.money)}</span>
+          <span style="color:var(--gold)">$1,000,000</span>
+        </div>
+        ${dblH}
+      </div>
+
+      ${crashDisp}
+      ${patH}
+      ${patVis}
+      ${extras}
+      ${timerH}
+      ${multBtns}
+
+      <div style="margin-top:14px">
+        <div class="btn-group">
+          ${G.reverseActive ? `
+            <button class="btn btn-danger" id="btn-dbl" onclick="handleDbl()" style="font-size:1em;padding:14px 32px">🔴 Double (Safe?)</button>
+            <button class="btn btn-cashout" id="btn-grn" onclick="handleGreenCrash()">🟢 Safe (Crash?)</button>
+          ` : `
+            <button class="btn btn-main" id="btn-dbl" onclick="handleDbl()">
+              ${G.currentMult > 2 ? `x${G.currentMult} ` : ''}💰 Double It
+            </button>
+          `}
+          ${G.money > 1 ? `<button class="btn btn-cashout" onclick="handleCashout()">✅ Cash Out $${fmt(G.money)}</button>` : ''}
+          ${safeBtn}
+          ${loanBtn}
+        </div>
+      </div>
+    </div>
+
+    <div class="msg-box ${G.specialState === 'insult' ? 'msg-danger' : 'msg-info'}" id="msg">${defMsg}</div>
+
+    <div class="greed-section">
+      <div class="greed-bar"><div class="greed-fill" style="width:${Math.min(G.greedRating * 10, 100)}%"></div></div>
+      <p class="greed-label">Greed: ${Math.round(G.greedRating)}/10</p>
+    </div>
+
+    ${fakeLBH}
+  `;
+
+            requestAnimationFrame(() => {
+                const fill = document.getElementById('progress-fill');
+                if (fill) fill.style.width = displayProgress + '%';
+            });
+
+            if (cfg.features.includes('timer')) startTimer();
+            maybeRage();
+        }
+
+        function setMult(m) { G.currentMult = m; renderGame(); }
+
+        function setMsg(text, type = 'info') {
+            const el = document.getElementById('msg');
+            if (el) {
+                el.className = `msg-box msg-${type}`;
+                el.innerHTML = text;
+            }
+            G.lastMsg = text;
+            G.specialState = type === 'danger' ? 'insult' : null;
+        }
+
+        // ===== CORE ACTIONS =====
+        function handleDbl() {
+            if (G.screen !== 'game') return;
+
+            // Anti-spam: prevent rapid double-clicking
+            const now = Date.now();
+            const timeSinceLast = now - G.lastClickTime;
+            G.lastClickTime = now;
+
+            if (timeSinceLast < CLICK_COOLDOWN_MS && G.money > 2) {
+                G.clickCooldownPenalties++;
+                // 60% chance of penalty for spamming
+                if (Math.random() < 0.6) {
+                    const penaltyPct = Math.min(0.2 + G.clickCooldownPenalties * 0.05, 0.5);
+                    const loss = Math.floor(G.money * penaltyPct);
+                    G.money -= loss;
+                    floatNum(loss, true);
+                    shake();
+                    if (!G.spamWarned) {
+                        setMsg("⚠️ SLOW DOWN! Spam-clicking detected! -$" + fmt(loss), 'danger');
+                        G.spamWarned = true;
+                    } else {
+                        const msgs = [
+                            "🐌 Still spamming? -$" + fmt(loss) + " penalty!",
+                            "🚫 Click slower or keep losing money! -$" + fmt(loss),
+                            "💸 Your greed is costing you! -$" + fmt(loss),
+                            "⛔ PENALTY! Patience is a virtue! -$" + fmt(loss),
+                        ];
+                        setMsg(pick(msgs), 'danger');
+                    }
+                    if (checkNegative()) return;
+                    renderGame();
+                    return;
+                }
+            } else if (timeSinceLast > 1000) {
+                // Reset penalty counter if they waited
+                G.clickCooldownPenalties = Math.max(0, G.clickCooldownPenalties - 1);
+            }
+
+            if (G.inputDelay) {
+                setMsg("⏳ Processing...", 'info');
+                setTimeout(() => doDbl(), rand(500, 1500));
+                return;
+            }
+            doDbl();
+        }
+
+        async function doDbl() {
+            if (G.screen !== 'game') return;
+            G.totalClicks++;
+            G.roundClicks++;
+            G.totalRounds++;
+            clearT();
+
+            if (!G.loggedIn) {
+                // fallback for guests
+                const win = getNextOutcome();
+                G.pattern.push(win);
+                if (G.pattern.length > 20) G.pattern.shift();
+                if (win) doWin(); else doCrash();
+                return;
+            }
+
+            // Sync with backend
+            const b = document.getElementById('btn-dbl');
+            if (b) b.disabled = true;
+            try {
+                const r = await apiPost('/api/action', { session: G.session, action: 'double', multiplier: G.currentMult || 2 });
+                if (b) b.disabled = false;
+                if (r.error) {
+                    // Not authenticated/error? Just fallback to local logic
+                    const win = getNextOutcome();
+                    G.pattern.push(win);
+                    if (win) doWin(); else doCrash();
+                    return;
+                }
+
+                const win = r.win ? 1 : 0;
+                G.pattern.push(win);
+                if (G.pattern.length > 20) G.pattern.shift();
+
+                if (r.win) {
+                    // Only trust backend money on actual syncs to avoid race conditions with local bonuses
+                    doWin();
+                } else {
+                    doCrash();
+                }
+            } catch (e) {
+                if (b) b.disabled = false;
+                const win = getNextOutcome();
+                G.pattern.push(win);
+                if (win) doWin(); else doCrash();
+            }
+        }
+
+        function handleGreenCrash() {
+            if (G.screen !== 'game') return;
+            G.totalClicks++;
+            G.roundClicks++;
+            G.pattern.push(0);
+            if (G.pattern.length > 20) G.pattern.shift();
+            doCrash();
+        }
+
+        function doWin() {
+            const mult = G.currentMult || 2;
+            const prev = G.money;
+            G.money *= mult;
+            G.streak = Math.max(0, G.streak) + 1;
+            G.maxStreak = Math.max(G.maxStreak, G.streak);
+            G.peakMoney = Math.max(G.peakMoney, G.money);
+            saveHS();
+
+            floatNum(G.money - prev, false);
+            checkMilestones();
+
+            if (G.money > 10000) G.greedRating = Math.min(10, G.greedRating + 0.2);
+            if (G.money > 100000) G.greedRating = Math.min(10, G.greedRating + 0.3);
+
+            if (G.patternPos < G.patternSeq.length && G.patternSeq[G.patternPos] === 0) {
+                G.nearMiss = true;
+            }
+
+            // DOOM LEVEL: trigger when close to $1M but haven't shown it yet
+            if (G.money >= 700000 && G.money < TARGET && !G.doomLevelShown) {
+                showDoomLevel();
+                return;
+            }
+
+            if (G.money >= TARGET) {
+                const cfg = LEVEL_CONFIG[G.level] || LEVEL_CONFIG[20];
+                if (cfg.features.includes('finalIllusion') && G.specialState !== 'passed') {
+                    G.specialState = 'verify';
+                    showFinal();
+                    return;
+                }
+                handleWin();
+                return;
+            }
+
+            const nl = levelFor();
+            if (nl > G.level) {
+                G.level = nl;
+                G.lastMsg = `⬆ Level ${G.level} — ${LEVEL_CONFIG[G.level]?.name || '???'}`;
+                showLevel(G.level);
+                return;
+            }
+
+            // Check for special level trigger
+            if (shouldShowSpecialLevel()) {
+                showSpecialLevel();
+                return;
+            }
+
+            G.resistCount++;
+
+            if (G.streak >= 5) G.lastMsg = `${G.streak} in a row! 🔥 Keep pushing?`;
+            else if (G.money > 500000) G.lastMsg = `$${fmt(G.money)}... feeling lucky? 🎰`;
+            else if (G.nearMiss) G.lastMsg = `⚡ Won, but danger ahead...`;
+            else G.lastMsg = `$${fmt(G.money)} — Nice! Keep going?`;
+
+            checkAch();
+            renderGame();
+        }
+
+        function doCrash() {
+            G.crashes++;
+            G.streak = Math.min(0, G.streak) - 1;
+            G.greedRating = Math.min(10, G.greedRating + 0.8);
+            G.gameActive = true;
+            shake();
+
+            const lost = G.money;
+            floatNum(lost, true);
+
+            if (G.hasDebt) G.debt *= 1.3;
+
+            G.money = 1;
+            G.roundClicks = 0;
+            G.currentMult = 2;
+            G.nearMiss = false;
+
+            saveHS();
+            checkAch();
+            showCrash(lost, getInsult());
+        }
+
+        function showCrash(lost, insult) {
+            G.screen = 'crash';
+            clearT();
+
+            const cfg = LEVEL_CONFIG[G.level] || LEVEL_CONFIG[20];
+            let extras = '';
+            if (cfg.features.includes('fakeRecovery')) extras += `<button class="btn btn-danger btn-sm" onclick="fakeRecover()" style="margin-top:6px">🎲 Second Chance?</button>`;
+            if (cfg.features.includes('loans') || G.level >= 17) extras += `<button class="btn btn-danger btn-sm" onclick="takeLoan()" style="margin-top:6px">💰 Borrow $1,000</button>`;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.4em, 5vw, 1.8em);color:var(--danger);text-shadow:0 0 20px var(--danger)">💥 CRASHED!</h1>
+
+    <div class="card glow-red">
+      <div class="money-display crash-anim" style="color:var(--danger)">-$${fmt(lost)}</div>
+      <p style="color:#777;font-size:0.8em">Had <span style="color:var(--gold)">$${fmt(lost)}</span> → back to <span style="color:var(--accent)">$1</span></p>
+      ${G.hasDebt && G.debt > 0 ? `<p class="debt-indicator">💀 Debt: $${fmt(Math.floor(G.debt))}</p>` : ''}
+    </div>
+
+    <div class="msg-box msg-danger">"${insult}"</div>
+
+    <div class="stats-row" style="grid-template-columns:repeat(2,1fr)">
+      <div class="stat-box"><div class="label">Crashes</div><div class="value" style="color:var(--danger)">${G.crashes}</div></div>
+      <div class="stat-box"><div class="label">Best Ever</div><div class="value" style="color:var(--gold)">$${fmt(G.highScore)}</div></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-main" onclick="tryAgain()">🔄 Try Again</button>
+      <button class="btn btn-sm" onclick="showShare()">📊 Give Up</button>
+    </div>
+    ${extras}
+  `;
+        }
+
+        function handleCashout() {
+            if (G.money <= 1) return;
+            G.cashouts++;
+            G.resistCount++;
+            G.greedRating = Math.max(0, G.greedRating - 0.5);
+
+            if (G.hasDebt && G.debt > 0) {
+                if (G.money > G.debt) {
+                    G.money = Math.floor(G.money - G.debt);
+                    G.debt = 0;
+                    G.hasDebt = false;
+                } else {
+                    G.debt -= G.money;
+                    G.money = 0;
+                    if (checkNegative()) return;
+                }
+            }
+
+            saveHS();
+            checkAch();
+            showCashout();
+        }
+
+        function showCashout() {
+            G.screen = 'cashout';
+            clearT();
+
+            const taunt = pick(TAUNTS)(G.money);
+            const doublesLeft = G.money > 0 ? Math.ceil(Math.log2(TARGET / Math.max(G.money, 1))) : 20;
+            const progress = Math.min((G.money / TARGET) * 100, 100);
+            const logP = G.money > 0 ? Math.min((Math.log10(G.money) / Math.log10(TARGET)) * 100, 100) : 0;
+            const dispP = Math.max(progress, logP * 0.7 + progress * 0.3);
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">✅ Cashed Out</h1>
+
+    <div class="card glow-green">
+      <div class="money-display" style="color:var(--accent)">$${fmt(G.money)}</div>
+      <p style="color:#777;font-size:0.8em">Safely banked!</p>
+      ${G.hasDebt ? `<p class="debt-indicator">Remaining debt: $${fmt(Math.floor(G.debt))}</p>` : ''}
+    </div>
+
+    <div class="msg-box msg-warn">${taunt}</div>
+
+    <div class="progress-section" style="width:100%">
+      <div class="target-bar"><div class="target-bar-fill" style="width:${dispP}%"></div></div>
+      <div class="target-labels">
+        <span class="current">$${fmt(G.money)}</span>
+        <span style="color:var(--gold)">$1,000,000</span>
+      </div>
+      <p class="doubles-hint">${doublesLeft} doubles to $1M</p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-main" onclick="contFromCash()">🎲 Keep Playing</button>
+      <button class="btn btn-sm" onclick="showShare()">📊 Stats</button>
+    </div>
+  `;
+        }
+
+        function contFromCash() { G.roundClicks = 0; G.lastMsg = ''; G.questionAnswered = false; showLevel(G.level); }
+
+        function tryAgain() {
+            G.money = 1; G.roundClicks = 0; G.currentMult = 2;
+            G.nearMiss = false; G.lastMsg = ''; G.specialState = null;
+            G.questionAnswered = false;
+            G.level = Math.max(1, G.level - rand(1, 2));
+            showLevel(G.level);
+        }
+
+        function handleWin() {
+            G.screen = 'win';
+            G.gameActive = false;
+            clearAll();
+            document.body.className = '';
+            saveStats(); saveHS();
+            submitFinalScore();
+            checkAch();
+            showMilestone('🏆 $1,000,000!');
+
+            app.innerHTML = `
+    <h1 class="title" style="color:var(--gold);text-shadow:0 0 30px var(--gold),0 0 60px color-mix(in srgb, var(--gold) 30%, transparent)">🏆 YOU WON!</h1>
+
+    <div class="card glow-gold">
+      <div class="money-display win-anim" style="color:var(--gold)">$${fmt(G.money)}</div>
+      <p style="color:var(--gold);font-size:1em;font-weight:700">The Greed Trial is complete!</p>
+      <p style="color:#777;font-size:0.78em;margin-top:8px;line-height:1.6">
+        Against all odds, manipulation, and your own greed... you made it. 🎉
+      </p>
+      ${G.loggedIn ? `<p style="color:var(--accent);font-size:0.72em;margin-top:6px">${G.userEmoji} ${G.username} — Score saved!</p>` : ''}
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="label">Crashes</div><div class="value" style="color:var(--danger)">${G.crashes}</div></div>
+      <div class="stat-box"><div class="label">Clicks</div><div class="value">${G.totalClicks}</div></div>
+      <div class="stat-box"><div class="label">Time</div><div class="value">${Math.floor((Date.now() - G.startTime) / 60000)}m</div></div>
+      <div class="stat-box"><div class="label">Greed</div><div class="value">${Math.round(G.greedRating)}/10</div></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-main" onclick="showShare()">📊 Share</button>
+      <button class="btn btn-sm" onclick="startGame()">🔄 Again</button>
+      <button class="btn btn-sm" onclick="showLB()">🏆 Scores</button>
+    </div>
+  `;
+        }
+
+        // ===== SPECIAL GAME LEVELS =====
+
+        // TIMER
+        function startTimer() {
+            let t = 3000;
+            G.timerInt = setInterval(() => {
+                if (G.screen !== 'game') { clearInterval(G.timerInt); G.timerInt = null; return; }
+                t -= 100;
+                const fill = document.getElementById('timer-fill');
+                const text = document.getElementById('timer-text');
+                if (fill) fill.style.width = (t / 3000 * 100) + '%';
+                if (text) text.textContent = (t / 1000).toFixed(1) + 's';
+                if (t <= 0) {
+                    clearInterval(G.timerInt); G.timerInt = null;
+                    setMsg("⏰ Too slow!", 'danger');
+                    setTimeout(() => { if (G.screen === 'game') doCrash(); }, 400);
+                }
+            }, 100);
+        }
+
+        // FAKE SAFETY
+        function fakeSafe() {
+            if (chance(30)) {
+                setMsg("🛡️ Safety failed!", 'danger');
+                shake();
+                setTimeout(() => doCrash(), 600);
+            } else {
+                handleCashout();
+            }
+        }
+
+        // MEMORY
+        function showMemory() {
+            G.screen = 'memory';
+            clearT();
+            const code = '' + rand(100, 999);
+            G.memCode = code;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">🧠 Memory Test</h1>
+    <div class="card">
+      <p style="color:#999;font-size:0.82em">Remember this code:</p>
+      <div class="code-display">${code}</div>
+      <p style="color:var(--faint);font-size:0.68em">You'll type it in 3 seconds...</p>
+    </div>
+  `;
+            setTimeout(() => { if (G.screen === 'memory') showMemInput(); }, 3000);
+        }
+
+        function showMemInput() {
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">🧠 Enter Code</h1>
+    <div class="card">
+      <p style="color:#999;font-size:0.82em">What was the 3-digit code?</p>
+      <input class="code-input" id="code-in" type="tel" maxlength="3" autofocus placeholder="???">
+      <div style="margin-top:14px"><button class="btn btn-main" onclick="checkMem()" style="font-size:0.95em">Submit</button></div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Type the code</div>
+  `;
+            setTimeout(() => document.getElementById('code-in')?.focus(), 100);
+        }
+
+        function checkMem() {
+            const v = document.getElementById('code-in')?.value || '';
+            if (v === G.memCode) {
+                setMsg("✅ Correct!", 'good');
+                G.specialState = 'passed';
+                setTimeout(() => renderGame(), 800);
+            } else {
+                setMsg(`❌ Wrong! It was ${G.memCode}`, 'danger');
+                setTimeout(() => doCrash(), 1200);
+            }
+        }
+
+        // PATIENCE
+        function showPatience() {
+            G.screen = 'patience';
+            clearT();
+            let w = 10;
+            window._patReady = false;
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">⏳ Patience</h1>
+    <div class="card">
+      <p style="color:#999;font-size:0.82em">Wait for the countdown. Then click.</p>
+      <p style="color:var(--danger);font-size:0.7em">Click early = crash!</p>
+      <div class="wait-circle" id="wait-c">${w}</div>
+      <div style="margin-top:14px"><button class="btn btn-main" onclick="patClick()">CLICK</button></div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Wait for it...</div>
+  `;
+
+            G.waitInt = setInterval(() => {
+                if (G.screen !== 'patience') { clearInterval(G.waitInt); G.waitInt = null; return; }
+                w--;
+                const c = document.getElementById('wait-c');
+                if (c) {
+                    c.textContent = w;
+                    if (w <= 0) {
+                        c.classList.add('ready');
+                        c.textContent = '✓';
+                        window._patReady = true;
+                        setMsg("✅ NOW! Click!", 'good');
+                        clearInterval(G.waitInt); G.waitInt = null;
+                    }
+                }
+            }, 1000);
+        }
+
+        function patClick() {
+            if (window._patReady) {
+                clearT();
+                setMsg("✅ Patient!", 'good');
+                G.specialState = 'passed';
+                setTimeout(() => renderGame(), 600);
+            } else {
+                clearT();
+                setMsg("❌ Too early!", 'danger');
+                setTimeout(() => doCrash(), 800);
+            }
+        }
+
+        // REACTION
+        function showReaction() {
+            G.screen = 'reaction';
+            clearT();
+            let count = 0;
+            window._rxState = { active: false, done: false };
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">⚡ Reaction</h1>
+    <div class="card">
+      <p style="color:#999;font-size:0.82em">Click when circle turns <span style="color:var(--gold);font-weight:700">GOLD</span></p>
+      <p style="color:var(--danger);font-size:0.68em">Wrong color = crash!</p>
+      <div class="flash-target" id="flash-t" onclick="rxClick()">●</div>
+    </div>
+    <div class="msg-box msg-info" id="msg">Watch carefully...</div>
+  `;
+
+            function doFlash() {
+                if (window._rxState.done || G.screen !== 'reaction') return;
+                count++;
+                const t = document.getElementById('flash-t');
+                if (!t) return;
+
+                if (count <= 2) {
+                    const c = chance(50) ? 'red' : 'green';
+                    t.className = `flash-target ${c}`;
+                    setTimeout(() => { if (t && G.screen === 'reaction') t.className = 'flash-target'; G.flashInt = setTimeout(doFlash, rand(800, 1500)); }, rand(300, 500));
+                } else {
+                    window._rxState.active = true;
+                    t.className = 'flash-target gold';
+                    setTimeout(() => {
+                        window._rxState.active = false;
+                        if (t && G.screen === 'reaction') t.className = 'flash-target';
+                        if (!window._rxState.done && G.screen === 'reaction') {
+                            setMsg("❌ Too slow!", 'danger');
+                            setTimeout(() => { if (G.screen === 'reaction') doCrash(); }, 800);
+                        }
+                    }, 350);
+                }
+            }
+
+            G.flashInt = setTimeout(doFlash, rand(1200, 2500));
+        }
+
+        function rxClick() {
+            if (window._rxState.done) return;
+            if (window._rxState.active) {
+                window._rxState.done = true;
+                clearT();
+                setMsg("⚡ Perfect!", 'good');
+                G.specialState = 'passed';
+                setTimeout(() => renderGame(), 600);
+            } else {
+                window._rxState.done = true;
+                clearT();
+                setMsg("❌ Wrong timing!", 'danger');
+                setTimeout(() => doCrash(), 800);
+            }
+        }
+
+        // FINAL ILLUSION
+        function showFinal() {
+            G.screen = 'final';
+            clearT();
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">⚠️ Verification</h1>
+    <div class="card" style="border-color:var(--warning)">
+      <p style="color:#999;font-size:0.82em;line-height:1.8">
+        You have <span style="color:var(--gold);font-weight:700">$${fmt(G.money)}</span>.
+        <br>One final 50/50 round to claim it.
+      </p>
+      <div class="verification-spinner"></div>
+      <p style="color:var(--faint);font-size:0.62em">Verifying...</p>
+    </div>
+  `;
+
+            setTimeout(() => {
+                if (G.screen !== 'final') return;
+                app.innerHTML = `
+      <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em);color:var(--danger)">⚔️ Final Round</h1>
+      <div class="card glow-red">
+        <div class="money-display">$${fmt(G.money)}</div>
+        <p style="color:var(--danger);font-size:0.85em;font-weight:700">50/50. Win or lose everything.</p>
+        <p style="color:var(--muted);font-size:0.68em;margin-top:6px">No tricks. Just fate.</p>
+        <div style="margin-top:16px" class="btn-group">
+          <button class="btn btn-main" onclick="finalRoll()">🎲 Accept Fate</button>
+          <button class="btn btn-cashout" onclick="handleCashout()">✅ Cash Out $${fmt(G.money)}</button>
+        </div>
+      </div>
+      <div class="msg-box msg-info" id="msg">The final test of greed.</div>
+    `;
+            }, 2500);
+        }
+
+        function finalRoll() {
+            if (chance(55)) {
+                G.money = TARGET;
+                G.peakMoney = TARGET;
+                G.specialState = 'passed';
+                handleWin();
+            } else {
+                setMsg("So close...", 'danger');
+                setTimeout(() => doCrash(), 800);
+            }
+        }
+
+        // LOAN
+        function takeLoan() {
+            G.money = 1000;
+            G.debt += 3000;
+            G.hasDebt = true;
+            checkAch();
+            G.lastMsg = '💰 Borrowed $1,000. Owe $3,000.';
+            G.level = Math.max(1, G.level - 1);
+            G.specialState = null;
+            setTimeout(() => showLevel(G.level), 1000);
+        }
+
+        // FAKE RECOVERY
+        function fakeRecover() {
+            setMsg("🎲 Rolling...", 'info');
+            setTimeout(() => {
+                if (chance(75)) {
+                    setMsg("❌ Failed. Obviously.", 'danger');
+                    shake();
+                    setTimeout(() => tryAgain(), 1200);
+                } else {
+                    G.money = Math.max(1, Math.floor(G.peakMoney * 0.2));
+                    floatNum(G.money, false);
+                    G.lastMsg = `🎉 Recovered $${fmt(G.money)}!`;
+                    setTimeout(() => showLevel(G.level), 1200);
+                }
+            }, 1200);
+        }
+
+        // ===== SHARE =====
+        function showShare() {
+            G.screen = 'share';
+            G.gameActive = false;
+            clearAll();
+            saveStats(); saveHS();
+            submitFinalScore();
+            document.body.className = '';
+
+            const t = Math.floor((Date.now() - G.startTime) / 1000);
+            const m = Math.floor(t / 60);
+            const s = t % 60;
+            const gr = Math.min(10, Math.round(G.greedRating));
+            const achs = Object.keys(G.achievements).map(k => ACHIEVEMENTS[k]?.name || k).join(', ') || 'None';
+
+            app.innerHTML = `
+    <h1 class="title" style="font-size:clamp(1.2em, 4.5vw, 1.5em)">📊 Results</h1>
+
+    <div class="share-card">
+      <h3>${G.loggedIn ? `${G.userEmoji} ${G.username}` : 'The Greed Trial'}</h3>
+      <div class="share-row"><span class="sr-label">Peak</span><span class="sr-val">$${fmt(G.peakMoney)}</span></div>
+      <div class="share-row"><span class="sr-label">All-Time Best</span><span class="sr-val">$${fmt(G.highScore)}</span></div>
+      <div class="share-row"><span class="sr-label">Crashes</span><span class="sr-val">${G.crashes}</span></div>
+      <div class="share-row"><span class="sr-label">Clicks</span><span class="sr-val">${G.totalClicks}</span></div>
+      <div class="share-row"><span class="sr-label">Best Streak</span><span class="sr-val">${G.maxStreak}</span></div>
+      <div class="share-row"><span class="sr-label">Level</span><span class="sr-val">${G.level}/20</span></div>
+      <div class="share-row"><span class="sr-label">Time</span><span class="sr-val">${m}m ${s}s</span></div>
+      <div class="share-row"><span class="sr-label">Greed</span><span class="sr-val">${gr}/10</span></div>
+      <div class="share-row"><span class="sr-label">GK Level</span><span class="sr-val">${G.gkLevel}</span></div>
+
+      <div class="greed-section" style="margin-top:12px">
+        <div class="greed-bar"><div class="greed-fill" style="width:${gr * 10}%"></div></div>
+      </div>
+
+      <p style="color:var(--faint);font-size:0.62em;margin-top:8px">🏆 ${achs}</p>
+    </div>
+
+    <div class="btn-group" style="margin-top:10px">
+      <button class="btn btn-sm" onclick="copyShare()">📋 Copy</button>
+      <button class="btn btn-main" onclick="startGame()" style="font-size:0.95em">🔄 Play Again</button>
+      <button class="btn btn-sm" onclick="showWelcome()">🏠 Menu</button>
+    </div>
+    <div class="msg-box msg-info" id="msg">Share or try again!</div>
+  `;
+        }
+
+        function copyShare() {
+            const t = `🔥 The Greed Trial\n💰 Peak: $${fmt(G.peakMoney)}\n💥 Crashes: ${G.crashes}\n📊 Greed: ${Math.min(10, Math.round(G.greedRating))}/10\n🎯 Level: ${G.level}/20\n⏱ ${Math.floor((Date.now() - G.startTime) / 60000)}m\n\nCan you beat it?`;
+            navigator.clipboard?.writeText(t).then(() => setMsg("📋 Copied!", 'good')).catch(() => setMsg("Copy failed", 'info'));
+        }
+
+        // ===== INIT =====
+        loadAch();
+        loadHS();
+        loadSession();
+
+        // Pre-fetch some questions
+        fetchGKQuestions('easy', 10).then(qs => { if (qs) G.gkQuestions.easy = qs; });
+        fetchGKQuestions('medium', 10).then(qs => { if (qs) G.gkQuestions.medium = qs; });
+
+        showWelcome();
+
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                if (G.screen === 'game') handleDbl();
+                else if (G.screen === 'crash') tryAgain();
+                else if (G.screen === 'cashout') contFromCash();
+                else if (G.screen === 'memory') checkMem();
+            }
+            if (e.code === 'Escape' && G.screen === 'game') { e.preventDefault(); handleCashout(); }
+        });
+
+        window.addEventListener('beforeunload', () => { clearAll(); saveHS(); });
+    </script>
+</body>
+
+</html>
