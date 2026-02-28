@@ -3,6 +3,7 @@
 The Greed Trial — Backend Server v2
 Handles: trivia questions, user accounts, score tracking, graph predictions,
          individual stats, leaderboard auto-refresh, anti-spam protection
+PERSISTENT STORAGE: Uses JSON files for database and cache
 """
 
 import http.server
@@ -64,7 +65,7 @@ def get_next_outcome(token):
 # ============================================================
 # CONFIG
 # ============================================================
-PORT = 8080
+PORT = int(os.environ.get('PORT', 8080))
 DB_FILE = "greed_trial_db.json"
 TRIVIA_CACHE_FILE = "trivia_cache.json"
 
@@ -76,31 +77,72 @@ TRIVIA_MIN_CACHE = 10   # minimum before refetch attempt
 # Leaderboard auto-refresh interval
 LEADERBOARD_REFRESH_INTERVAL = 60  # seconds (1 minute)
 
+# Auto-save interval for database
+DB_SAVE_INTERVAL = 30  # seconds
+
 # ============================================================
-# DATABASE (simple JSON file)
+# DATABASE (simple JSON file with auto-save)
 # ============================================================
 db_lock = threading.Lock()
 active_games = {}
 game_lock = threading.Lock()
+
+# In-memory database with auto-save
+_db_cache = None
+_db_dirty = False
 
 # Cached leaderboard for fast access
 cached_leaderboard = []
 lb_lock = threading.Lock()
 
 def load_db():
+    """Load database from file"""
+    global _db_cache
     with db_lock:
+        if _db_cache is not None:
+            return _db_cache
+            
         if os.path.exists(DB_FILE):
             try:
                 with open(DB_FILE, "r") as f:
-                    return json.load(f)
-            except:
-                pass
-    return {"users": {}, "sessions": {}, "leaderboard": []}
+                    _db_cache = json.load(f)
+                    print(f"[INFO] Loaded database: {len(_db_cache.get('users', {}))} users")
+                    return _db_cache
+            except Exception as e:
+                print(f"[WARN] Error loading database: {e}")
+        
+        _db_cache = {"users": {}, "sessions": {}, "leaderboard": []}
+        return _db_cache
 
-def save_db(data):
+def save_db(data=None, force=False):
+    """Save database to file"""
+    global _db_cache, _db_dirty
     with db_lock:
-        with open(DB_FILE, "w") as f:
-            json.dump(data, f, indent=2)
+        if data is not None:
+            _db_cache = data
+            _db_dirty = True
+        
+        if not force and not _db_dirty:
+            return
+            
+        try:
+            # Write to temporary file first, then rename (atomic operation)
+            temp_file = DB_FILE + ".tmp"
+            with open(temp_file, "w") as f:
+                json.dump(_db_cache, f, indent=2)
+            os.replace(temp_file, DB_FILE)
+            _db_dirty = False
+        except Exception as e:
+            print(f"[ERROR] Failed to save database: {e}")
+
+def db_autosave_thread():
+    """Background thread to periodically save database"""
+    while True:
+        time.sleep(DB_SAVE_INTERVAL)
+        try:
+            save_db(force=False)
+        except Exception as e:
+            print(f"[WARN] Autosave error: {e}")
 
 def get_user(db, username):
     return db.get("users", {}).get(username)
@@ -341,7 +383,7 @@ FALLBACK_HARD = [
 ]
 
 # ============================================================
-# TRIVIA CACHE with robust fetching
+# TRIVIA CACHE with robust fetching and persistence
 # ============================================================
 trivia_cache = {"easy": [], "medium": [], "hard": []}
 trivia_lock = threading.Lock()
@@ -357,8 +399,9 @@ def load_trivia_cache():
                     trivia_cache = cached
                     print(f"[INFO] Loaded trivia cache: easy={len(trivia_cache.get('easy', []))}, medium={len(trivia_cache.get('medium', []))}, hard={len(trivia_cache.get('hard', []))}")
                     return
-        except:
-            pass
+        except Exception as e:
+            print(f"[WARN] Could not load trivia cache: {e}")
+    
     # Initialize with fallbacks
     trivia_cache = {
         "easy": list(FALLBACK_EASY),
@@ -370,8 +413,10 @@ def load_trivia_cache():
 
 def save_trivia_cache():
     try:
-        with open(TRIVIA_CACHE_FILE, "w") as f:
-            json.dump(trivia_cache, f)
+        temp_file = TRIVIA_CACHE_FILE + ".tmp"
+        with open(temp_file, "w") as f:
+            json.dump(trivia_cache, f, indent=2)
+        os.replace(temp_file, TRIVIA_CACHE_FILE)
     except Exception as e:
         print(f"[WARN] Could not save trivia cache: {e}")
 
@@ -749,6 +794,15 @@ class GreedHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(f.read())
             return
         
+        if path == '/ping':
+            # Simple ping endpoint for keeping Render alive
+            self.send_json({
+                "status": "alive",
+                "timestamp": time.time(),
+                "uptime": time.time()
+            })
+            return
+        
         if path == '/api/trivia':
             params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             difficulty = params.get('difficulty', ['easy'])[0]
@@ -786,9 +840,12 @@ class GreedHandler(SimpleHTTPRequestHandler):
         if path == '/api/health':
             with trivia_lock:
                 cache_status = {k: len(v) for k, v in trivia_cache.items()}
+            db = load_db()
             self.send_json({
                 "status": "ok",
                 "trivia_cache": cache_status,
+                "total_users": len(db.get("users", {})),
+                "total_sessions": len(db.get("sessions", {})),
                 "uptime": time.time()
             })
             return
@@ -937,6 +994,7 @@ class GreedHandler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     # Load caches
     load_trivia_cache()
+    load_db()  # Initialize database
     
     # Pre-fetch trivia in background
     fetch_thread = threading.Thread(target=prefetch_trivia, daemon=True)
@@ -950,6 +1008,10 @@ if __name__ == "__main__":
     lb_thread = threading.Thread(target=leaderboard_refresh_thread, daemon=True)
     lb_thread.start()
     
+    # Database auto-save thread
+    autosave_thread = threading.Thread(target=db_autosave_thread, daemon=True)
+    autosave_thread.start()
+    
     # Initial leaderboard load
     refresh_leaderboard()
     
@@ -957,13 +1019,14 @@ if __name__ == "__main__":
     
     print()
     print("=" * 50)
-    print("  🎰 The Greed Trial Server v2")
+    print("  🎰 The Greed Trial Server v2 (Persistent)")
     print(f"  http://localhost:{PORT}")
     print("=" * 50)
     print()
     print(f"  Trivia cache: easy={len(trivia_cache.get('easy', []))}, medium={len(trivia_cache.get('medium', []))}, hard={len(trivia_cache.get('hard', []))}")
     print(f"  Database: {DB_FILE}")
     print(f"  Leaderboard refresh: every {LEADERBOARD_REFRESH_INTERVAL}s")
+    print(f"  Auto-save: every {DB_SAVE_INTERVAL}s")
     print()
     
     try:
@@ -971,4 +1034,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n[INFO] Shutting down...")
         save_trivia_cache()
+        save_db(force=True)  # Final save
         server.shutdown()
